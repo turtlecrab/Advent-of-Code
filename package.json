@@ -1,0 +1,17 @@
+{
+  "name": "aoc22",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/lodash": "^4.14.191",
+    "@types/node": "^18.11.11",
+    "lodash": "^4.17.21"
+  }
+}
