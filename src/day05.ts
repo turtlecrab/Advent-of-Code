@@ -9,20 +9,32 @@ export type Move = {
   amount: number
 }
 
-const input = fs.readFileSync(__dirname + '/day05.input.txt', 'utf8')
+const input = fs
+  .readFileSync(__dirname + '/day05.input.txt', 'utf8')
+  .replace(/\r/g, '')
 
-// TODO: parse initial state too
-const initialState: State = [
-  ['N', 'D', 'M', 'Q', 'B', 'P', 'Z'],
-  ['C', 'L', 'Z', 'Q', 'M', 'D', 'H', 'V'],
-  ['Q', 'H', 'R', 'D', 'V', 'F', 'Z', 'G'],
-  ['H', 'G', 'D', 'F', 'N'],
-  ['N', 'F', 'Q'],
-  ['D', 'Q', 'V', 'Z', 'F', 'B', 'T'],
-  ['Q', 'M', 'T', 'Z', 'D', 'V', 'S', 'H'],
-  ['M', 'G', 'F', 'P', 'N', 'Q'],
-  ['B', 'W', 'R', 'M'],
-]
+export function getStateSize(rawState: string): number {
+  return Number(rawState.match(/\s+(\d+)\s+$/)![1])
+}
+
+export function parseState(rawState: string): State {
+  const colSize = getStateSize(rawState)
+  const rows = rawState.split('\n')
+  rows.pop()
+  rows.reverse()
+
+  const result: State = []
+  for (let column = 0; column < colSize; column++) {
+    result.push([])
+    for (let row of rows) {
+      const char = row[column * 4 + 1]
+      if (/[A-Z]/.test(char)) {
+        result[column].push(char)
+      }
+    }
+  }
+  return result
+}
 
 export function parseMove(str: string): Move {
   const match = str.match(/move (\d+) from (\d+) to (\d+)/)
@@ -54,7 +66,10 @@ export function getTopCratesString(state: State): string {
   return state.map(col => col[col.length - 1]).join('')
 }
 
-const moves = input.split('\n').map(parseMove)
+const [rawState, rawMoves] = input.split('\n\n')
+
+const initialState = parseState(rawState)
+const moves = rawMoves.split('\n').map(parseMove)
 
 // PART ONE
 const state1 = cloneDeep(initialState)

@@ -1,16 +1,35 @@
 import {
+  getStateSize,
   getTopCratesString,
   makeMoveByOne,
   makeMoveWhole,
   Move,
   parseMove,
-  State,
+  parseState,
 } from './day05'
 
-const testInput = `move 1 from 2 to 1
+const testRawState = `    [D]    
+[N] [C]    
+[Z] [M] [P]
+ 1   2   3 `
+
+const testRawMoves = `move 1 from 2 to 1
 move 3 from 1 to 3
 move 2 from 2 to 1
 move 1 from 1 to 2`
+
+describe('parseState', () => {
+  it('gets the number of columns', () => {
+    expect(getStateSize(testRawState)).toBe(3)
+  })
+  it('parses state', () => {
+    expect(parseState(testRawState)).toEqual([
+      ['Z', 'N'],
+      ['M', 'C', 'D'],
+      ['P'],
+    ])
+  })
+})
 
 describe('parseMove', () => {
   it('throws on bad input', () => {
@@ -38,21 +57,22 @@ describe('parseMove', () => {
     })
   })
 })
+
 describe('Moving crates', () => {
-  const input = testInput
-  const moves = input.split('\n').map(parseMove)
+  const moves = testRawMoves.split('\n').map(parseMove)
 
   it('moves by one', () => {
-    const state = [['Z', 'N'], ['M', 'C', 'D'], ['P']]
+    const state = parseState(testRawState)
     moves.forEach(move => makeMoveByOne(state, move))
     expect(state).toEqual([['C'], ['M'], ['P', 'D', 'N', 'Z']])
   })
   it('moves several at once', () => {
-    const state = [['Z', 'N'], ['M', 'C', 'D'], ['P']]
+    const state = parseState(testRawState)
     moves.forEach(move => makeMoveWhole(state, move))
     expect(state).toEqual([['M'], ['C'], ['P', 'Z', 'N', 'D']])
   })
 })
+
 describe('getTopCratesString', () => {
   it('returns top crates as string', () => {
     expect(getTopCratesString([['C'], ['M'], ['P', 'D', 'N', 'Z']])).toBe('CMZ')
