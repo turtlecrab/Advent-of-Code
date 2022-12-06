@@ -1,7 +1,7 @@
 import { isContaining, isOverlapping } from './day04'
 
 describe('isContaining', () => {
-  it('should pass provided tests ', () => {
+  it('passes provided tests ', () => {
     expect(isContaining('2-4,6-8')).toBe(false)
     expect(isContaining('2-3,4-5')).toBe(false)
     expect(isContaining('5-7,7-9')).toBe(false)
@@ -12,7 +12,7 @@ describe('isContaining', () => {
 })
 
 describe('isOverlapping', () => {
-  it('should pass provided tests', () => {
+  it('passes provided tests', () => {
     expect(isOverlapping('2-4,6-8')).toBe(false)
     expect(isOverlapping('2-3,4-5')).toBe(false)
     expect(isOverlapping('5-7,7-9')).toBe(true)

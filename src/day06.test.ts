@@ -1,6 +1,6 @@
 import { getStartMarkerIndex } from './day06'
 
-describe('getStartIndex', () => {
+describe('getStartMarkerIndex', () => {
   it('works for start-of-packet w/ length=4', () => {
     expect(getStartMarkerIndex('bvwbjplbgvbhsrlpgdmjqwftvncz', 4)).toBe(5)
     expect(getStartMarkerIndex('nppdvjthqldpwncqszvftbrmjlhg', 4)).toBe(6)
