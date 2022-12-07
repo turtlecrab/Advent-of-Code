@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "vitest --silent --reporter verbose"
+    "test": "vitest --silent --reporter verbose",
+    "loud": "vitest --reporter verbose"
   },
   "keywords": [],
   "author": "",
