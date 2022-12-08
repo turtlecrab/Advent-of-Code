@@ -1,4 +1,11 @@
-import { getVisibleAmount, isVisible, parseMap } from './day08'
+import {
+  getHighestScenicScore,
+  getScenicScore,
+  getVisibleAmount,
+  getVisibleInLine,
+  isVisible,
+  parseMap,
+} from './day08'
 
 const testInput = `30373
 25512
@@ -36,5 +43,21 @@ describe('isVisible', () => {
 describe('getVisibleAmount', () => {
   it('gets the visible amount', () => {
     expect(getVisibleAmount(parseMap(testInput))).toBe(21)
+  })
+})
+
+describe('getHighestScenicScore', () => {
+  it('gets amount of visible trees in line', () => {
+    expect(getVisibleInLine([], 5)).toBe(0)
+    expect(getVisibleInLine([3], 5)).toBe(1)
+    expect(getVisibleInLine([5, 2], 5)).toBe(1)
+    expect(getVisibleInLine([3, 5, 3], 5)).toBe(2)
+    expect(getVisibleInLine([1, 2], 5)).toBe(2)
+  })
+  it('gets scenic score', () => {
+    expect(getScenicScore(parseMap(testInput), 1, 2)).toBe(4)
+  })
+  it('gets highest scenic score', () => {
+    expect(getHighestScenicScore(parseMap(testInput))).toBe(8)
   })
 })
