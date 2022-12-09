@@ -26,60 +26,68 @@ export function parseMoves(str: string): Move[] {
   })
 }
 
-export function getNewPositions(
-  head: Position,
-  tail: Position,
-  move: Move
-): { head: Position; tail: Position } {
-  const moveVector: Position = {
-    x: move.direction === 'R' ? 1 : move.direction === 'L' ? -1 : 0,
-    y: move.direction === 'U' ? 1 : move.direction === 'D' ? -1 : 0,
+export function getNextHead(head: Position, direction: Dirs): Position {
+  const moveVector = {
+    x: direction === 'R' ? 1 : direction === 'L' ? -1 : 0,
+    y: direction === 'U' ? 1 : direction === 'D' ? -1 : 0,
   }
-  let nextHead: Position = {
-    ...head,
+  return {
+    x: head.x + moveVector.x,
+    y: head.y + moveVector.y,
   }
-  let nextTail: Position = {
-    ...tail,
-  }
-  for (let i = 0; i < move.amount; i++) {
-    nextHead = {
-      x: nextHead.x + moveVector.x,
-      y: nextHead.y + moveVector.y,
-    }
-    if (Math.abs(nextHead.x - nextTail.x) > 1) {
-      nextTail = {
-        x: nextHead.x - moveVector.x,
-        y: nextHead.y,
-      }
-    } else if (Math.abs(nextHead.y - nextTail.y) > 1) {
-      nextTail = {
-        x: nextHead.x,
-        y: nextHead.y - moveVector.y,
-      }
-    }
-  }
-  return { head: nextHead, tail: nextTail }
 }
 
-export function getTailVisitedPositions(moves: Move[]): number {
-  let head: Position = { x: 0, y: 0 }
-  let tail: Position = { x: 0, y: 0 }
+export function getNextTail(nextHead: Position, tail: Position): Position {
+  const stretchVector = {
+    x: nextHead.x - tail.x,
+    y: nextHead.y - tail.y,
+  }
+  if (Math.abs(stretchVector.x) > 1 && Math.abs(stretchVector.y) > 1) {
+    return {
+      x: (tail.x + nextHead.x) * 0.5,
+      y: (tail.y + nextHead.y) * 0.5,
+    }
+  }
+  if (Math.abs(stretchVector.x) > 1) {
+    return {
+      x: nextHead.x - Math.sign(stretchVector.x),
+      y: nextHead.y,
+    }
+  }
+  if (Math.abs(stretchVector.y) > 1) {
+    return {
+      x: nextHead.x,
+      y: nextHead.y - Math.sign(stretchVector.y),
+    }
+  }
+  return { ...tail }
+}
 
-  const serialize = (pos: Position) => `${pos.x}:${pos.y}`
+export function getTailVisitedPositions(
+  moves: Move[],
+  length: number
+): Set<string> {
+  const rope: Position[] = Array(length)
+    .fill({ x: 0, y: 0 })
+    .map(obj => ({ ...obj })) // not needed but feels right
 
   const visited = new Set<string>()
-  visited.add(serialize(tail))
+  const serialize = (pos: Position) => `${pos.x}:${pos.y}`
+
+  visited.add(serialize(rope.at(-1)))
 
   for (let move of moves) {
-    for (let _ = 0; _ < move.amount; _++) {
-      const newPos = getNewPositions(head, tail, { ...move, amount: 1 })
-      head = newPos.head
-      tail = newPos.tail
+    for (let _i = 0; _i < move.amount; _i++) {
+      rope[0] = getNextHead(rope[0], move.direction)
+      for (let j = 1; j < rope.length; j++) {
+        rope[j] = getNextTail(rope[j - 1], rope[j])
+      }
 
-      visited.add(serialize(tail))
+      visited.add(serialize(rope.at(-1)))
     }
   }
-  return visited.size
+  return visited
 }
 
-console.log(getTailVisitedPositions(parseMoves(input)))
+console.log(getTailVisitedPositions(parseMoves(input), 2).size)
+console.log(getTailVisitedPositions(parseMoves(input), 10).size)
