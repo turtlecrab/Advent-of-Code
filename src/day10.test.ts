@@ -1,4 +1,6 @@
 import {
+  getPixels,
+  getScreen,
   getSignalStrengthAtCycle,
   getSpecialSum,
   getVaules,
@@ -167,6 +169,12 @@ describe('parseAndFlat', () => {
   })
 })
 
+describe('getValues', () => {
+  it('gets values', () => {
+    expect(getVaules(parseAndFlat(testInput2))).toHaveLength(240)
+  })
+})
+
 describe('getSpecialSum', () => {
   it('gets needed sum', () => {
     const actions = parseAndFlat(testInput2)
@@ -183,5 +191,26 @@ describe('getSpecialSum', () => {
     // )
 
     expect(getSpecialSum(values)).toBe(13140)
+  })
+})
+
+describe('getScreen', () => {
+  const testScreen = `##..##..##..##..##..##..##..##..##..##..
+###...###...###...###...###...###...###.
+####....####....####....####....####....
+#####.....#####.....#####.....#####.....
+######......######......######......####
+#######.......#######.......#######.....`
+  const pixels = getPixels(getVaules(parseAndFlat(testInput2)), 40)
+
+  it('gets pixels ', () => {
+    expect(pixels.join('')).toBe(testScreen.replace(/[\r\n]/g, ''))
+  })
+  it('prints screen', () => {
+    const screen = getScreen(
+      getPixels(getVaules(parseAndFlat(testInput2)), 40),
+      40
+    )
+    expect(screen).toBe(testScreen)
   })
 })

@@ -1,5 +1,4 @@
 import * as fs from 'fs'
-import { add } from 'lodash'
 
 const input = fs
   .readFileSync(__dirname + '/day10.input.txt', 'utf8')
@@ -53,4 +52,24 @@ export function getSpecialSum(values: number[]) {
   return sum
 }
 
+export function getPixels(values: number[], width: number): string[] {
+  const spriteRadius = 2 // sprite width === 3
+
+  return values.map((value, i) => {
+    if (Math.abs(value - (i % width)) < spriteRadius) {
+      return '#'
+    }
+    return '.'
+  })
+}
+
+export function getScreen(pixels: string[], width: number): string {
+  const screen = []
+  while (pixels.length) {
+    screen.push(pixels.splice(0, width).join(''))
+  }
+  return screen.join('\n')
+}
+
 console.log(getSpecialSum(getVaules(parseAndFlat(input))))
+console.log(getScreen(getPixels(getVaules(parseAndFlat(input)), 40), 40))
