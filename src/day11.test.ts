@@ -51,3 +51,27 @@ describe('getMonkeyBusiness', () => {
     )
   })
 })
+
+describe('computeInspections 10000', () => {
+  it('computes 10000 rounds 🤯', () => {
+    expect(computeInspections(parseMonkeys(testInput), 1, false)).toEqual([
+      2, 4, 3, 6,
+    ])
+    expect(computeInspections(parseMonkeys(testInput), 20, false)).toEqual([
+      99, 97, 8, 103,
+    ])
+    expect(computeInspections(parseMonkeys(testInput), 10000, false)).toEqual([
+      52166, 47830, 1938, 52013,
+    ])
+  })
+})
+
+describe('getMonkeyBusiness 10000', () => {
+  it('returns 🐵 business', () => {
+    expect(
+      getMonkeyBusiness(
+        computeInspections(parseMonkeys(testInput), 10000, false)
+      )
+    ).toBe(2713310158)
+  })
+})

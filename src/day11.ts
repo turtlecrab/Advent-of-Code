@@ -61,11 +61,14 @@ export function parseMonkeys(str: string): MonkeyState[] {
 
 export function computeInspections(
   initialMonkeys: MonkeyState[],
-  rounds: number = 20
+  rounds: number = 20,
+  relief: boolean = true
 ): number[] {
   const monkeys = cloneDeep(initialMonkeys)
 
   const inspections: number[] = Array(monkeys.length).fill(0)
+
+  const denominator = monkeys.map(m => m.test.num).reduce((a, b) => a * b)
 
   for (let i = 0; i < rounds; i++) {
     for (let monkeyIndex in monkeys) {
@@ -89,9 +92,11 @@ export function computeInspections(
             throw new Error(`Unknown operation: ${monkey.operation}`)
         }
         // Monkey bored
-        worry = Math.floor(worry / 3)
-
+        if (relief) {
+          worry = Math.floor(worry / 3)
+        }
         // Test
+        worry = worry % denominator
         if (worry % monkey.test.num === 0) {
           monkeys[monkey.test.throwTrue].items.push(worry)
         } else {
@@ -111,3 +116,6 @@ export function getMonkeyBusiness(inspections: number[]): number {
 }
 
 console.log(getMonkeyBusiness(computeInspections(parseMonkeys(input))))
+console.log(
+  getMonkeyBusiness(computeInspections(parseMonkeys(input), 10000, false))
+)
