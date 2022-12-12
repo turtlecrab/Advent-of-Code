@@ -89,8 +89,16 @@ export function getShortestPath(
     via: null,
   }))
 
-  const getNode = (pos: Position) =>
-    all.find(n => n.position.x === pos.x && n.position.y === pos.y)
+  const nodeHash = {}
+  const getNode = (pos: Position) => {
+    const key = `${pos.x}:${pos.y}`
+    if (!nodeHash[key]) {
+      nodeHash[key] = all.find(
+        n => n.position.x === pos.x && n.position.y === pos.y
+      )
+    }
+    return nodeHash[key]
+  }
 
   const unvisited = [...all]
 
