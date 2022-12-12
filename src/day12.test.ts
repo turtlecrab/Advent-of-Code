@@ -1,4 +1,11 @@
-import { canGo, parseStartEnd, parseGraph, getShortestPath } from './day12'
+import {
+  canGo,
+  parseStartEnd,
+  parseGraph,
+  getShortestPath,
+  parseReverseGraph,
+  getShortestPathFromTop,
+} from './day12'
 
 const testInput = `Sabqponm
 abcryxxl
@@ -46,5 +53,14 @@ describe('getShortestPath', () => {
 
     expect(getShortestPath(graph, start, end)).toBeTruthy()
     expect(getShortestPath(graph, start, end)).toHaveLength(31)
+  })
+})
+
+describe('getShortestPathFromTop', () => {
+  it('gets it 🗻', () => {
+    const graph = parseReverseGraph(testInput)
+    const { end } = parseStartEnd(testInput)
+
+    expect(getShortestPathFromTop(graph, end)).toHaveLength(29)
   })
 })

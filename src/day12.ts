@@ -134,7 +134,112 @@ export function getShortestPath(
   return result
 }
 
+type ProperNode = {
+  char: string
+  edges: string[]
+  cost?: number
+  via?: string
+}
+
+type ProperGraph = {
+  [key: string]: ProperNode
+}
+
+export function parseReverseGraph(str: string): ProperGraph {
+  str = str.replace(/S/g, 'a').replace(/E/g, 'z')
+
+  const lines = str.split('\n')
+  const width = lines[0].length
+  const height = lines.length
+
+  const graph: ProperGraph = {}
+
+  const canGoRev = (from: string, to: string) => canGo(to, from)
+
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const char = lines[y][x]
+
+      const serialize = (x: number, y: number) => `${x}:${y}`
+
+      const key = serialize(x, y)
+      const edges: string[] = []
+
+      if (y > 0 && canGoRev(char, lines[y - 1][x])) {
+        edges.push(serialize(x, y - 1))
+      }
+      if (y < height - 1 && canGoRev(char, lines[y + 1][x])) {
+        edges.push(serialize(x, y + 1))
+      }
+      if (x > 0 && canGoRev(char, lines[y][x - 1])) {
+        edges.push(serialize(x - 1, y))
+      }
+      if (x < width - 1 && canGoRev(char, lines[y][x + 1])) {
+        edges.push(serialize(x + 1, y))
+      }
+
+      graph[key] = {
+        char,
+        edges,
+        cost: Infinity,
+      }
+    }
+  }
+  return graph
+}
+
+export function getShortestPathFromTop(
+  graph: ProperGraph,
+  end: Position
+): Position[] {
+  graph = cloneDeep(graph) //
+
+  const unvisited = Object.keys(graph)
+  let minCost = Infinity
+  let minCostKey = ''
+
+  graph[`${end.x}:${end.y}`].cost = 0
+
+  while (unvisited.length) {
+    unvisited.sort((a, b) => graph[b].cost - graph[a].cost)
+    const current = unvisited.pop()
+
+    // exit loop if no shorter trails possible
+    if (graph[current].cost >= minCost) break
+
+    if (graph[current].cost === Infinity) {
+      throw new Error(`Path not found, unvisited: ${unvisited.length}`)
+    }
+
+    const nextCost = graph[current].cost + 1
+    for (let edge of graph[current].edges) {
+      if (nextCost < graph[edge].cost) {
+        graph[edge].cost = nextCost
+        graph[edge].via = current
+      }
+    }
+    // check if we on the lowest height
+    if (graph[current].char === 'a') {
+      minCost = Math.min(minCost, graph[current].cost)
+      minCostKey = current
+    }
+  }
+
+  let destination = minCostKey
+
+  const result: Position[] = []
+  while (graph[destination].cost > 0) {
+    const [x, y] = destination.split(':').map(Number)
+    result.unshift({ x, y })
+    destination = graph[destination].via
+  }
+  return result
+}
+
 const graph = parseGraph(input)
 const { start, end } = parseStartEnd(input)
-
 console.log(getShortestPath(graph, start, end).length)
+
+const graph2 = parseReverseGraph(input)
+const { end: end2 } = parseStartEnd(input)
+console.log(getShortestPathFromTop(graph2, end2).length)
