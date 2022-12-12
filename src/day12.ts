@@ -11,11 +11,15 @@ type Position = {
 }
 
 type Node = {
-  position: Position
-  edges: Position[]
+  char: string
+  edges: string[]
+  cost?: number
+  via?: string
 }
 
-type Graph = Node[]
+type Graph = {
+  [key: string]: Node
+}
 
 export function canGo(from: string, to: string): boolean {
   return to.charCodeAt(0) - from.charCodeAt(0) <= 1
@@ -35,126 +39,17 @@ export function parseStartEnd(str: string): { start: Position; end: Position } {
   return { start, end }
 }
 
-export function parseGraph(str: string): Graph {
+export function parseGraph(
+  str: string,
+  canGoFunc: (from: string, to: string) => boolean
+): Graph {
   str = str.replace(/S/g, 'a').replace(/E/g, 'z')
 
   const lines = str.split('\n')
   const width = lines[0].length
   const height = lines.length
 
-  const nodes: Graph = []
-
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < lines[y].length; x++) {
-      const char = lines[y][x]
-      const position: Position = { x, y }
-      const edges: Position[] = []
-
-      if (y > 0 && canGo(char, lines[y - 1][x])) {
-        edges.push({ x, y: y - 1 })
-      }
-      if (y < height - 1 && canGo(char, lines[y + 1][x])) {
-        edges.push({ x, y: y + 1 })
-      }
-      if (x > 0 && canGo(char, lines[y][x - 1])) {
-        edges.push({ x: x - 1, y })
-      }
-      if (x < width - 1 && canGo(char, lines[y][x + 1])) {
-        edges.push({ x: x + 1, y })
-      }
-
-      nodes.push({
-        position,
-        edges,
-      })
-    }
-  }
-  return nodes
-}
-
-export function getShortestPath(
-  graph: Graph,
-  start: Position,
-  end: Position
-): Position[] {
-  type CalcNode = Node & {
-    cost: number
-    via: CalcNode | null
-  }
-
-  const all: CalcNode[] = graph.map(node => ({
-    ...cloneDeep(node),
-    cost:
-      node.position.x === start.x && node.position.y === start.y ? 0 : Infinity,
-    via: null,
-  }))
-
-  const nodeHash = {}
-  const getNode = (pos: Position) => {
-    const key = `${pos.x}:${pos.y}`
-    if (!nodeHash[key]) {
-      nodeHash[key] = all.find(
-        n => n.position.x === pos.x && n.position.y === pos.y
-      )
-    }
-    return nodeHash[key]
-  }
-
-  const unvisited = [...all]
-
-  while (unvisited.length) {
-    unvisited.sort((a, b) => b.cost - a.cost)
-    const current = unvisited.pop()
-
-    if (current.cost === Infinity) {
-      throw new Error(`Path not found, unvisited: ${unvisited.length}`)
-    }
-
-    const nextCost = current.cost + 1
-    for (let edgePos of current.edges) {
-      const edge = getNode(edgePos)
-
-      if (nextCost < edge.cost) {
-        edge.cost = nextCost
-        edge.via = current
-      }
-    }
-    // check if destination node is visited
-    if (current.position.x === end.x && current.position.y === end.y) break
-  }
-
-  let destination = all.find(
-    node => node.position.x === end.x && node.position.y === end.y
-  )
-  const result: Position[] = []
-  while (destination && destination.cost > 0) {
-    result.unshift(destination.position)
-    destination = destination.via
-  }
-  return result
-}
-
-type ProperNode = {
-  char: string
-  edges: string[]
-  cost?: number
-  via?: string
-}
-
-type ProperGraph = {
-  [key: string]: ProperNode
-}
-
-export function parseReverseGraph(str: string): ProperGraph {
-  str = str.replace(/S/g, 'a').replace(/E/g, 'z')
-
-  const lines = str.split('\n')
-  const width = lines[0].length
-  const height = lines.length
-
-  const graph: ProperGraph = {}
-
-  const canGoRev = (from: string, to: string) => canGo(to, from)
+  const graph: Graph = {}
 
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
@@ -165,16 +60,16 @@ export function parseReverseGraph(str: string): ProperGraph {
       const key = serialize(x, y)
       const edges: string[] = []
 
-      if (y > 0 && canGoRev(char, lines[y - 1][x])) {
+      if (y > 0 && canGoFunc(char, lines[y - 1][x])) {
         edges.push(serialize(x, y - 1))
       }
-      if (y < height - 1 && canGoRev(char, lines[y + 1][x])) {
+      if (y < height - 1 && canGoFunc(char, lines[y + 1][x])) {
         edges.push(serialize(x, y + 1))
       }
-      if (x > 0 && canGoRev(char, lines[y][x - 1])) {
+      if (x > 0 && canGoFunc(char, lines[y][x - 1])) {
         edges.push(serialize(x - 1, y))
       }
-      if (x < width - 1 && canGoRev(char, lines[y][x + 1])) {
+      if (x < width - 1 && canGoFunc(char, lines[y][x + 1])) {
         edges.push(serialize(x + 1, y))
       }
 
@@ -188,11 +83,55 @@ export function parseReverseGraph(str: string): ProperGraph {
   return graph
 }
 
-export function getShortestPathFromTop(
-  graph: ProperGraph,
+export function getShortestPath(
+  graph: Graph,
+  start: Position,
   end: Position
 ): Position[] {
-  graph = cloneDeep(graph) //
+  graph = cloneDeep(graph)
+
+  const unvisited = Object.keys(graph)
+
+  graph[`${start.x}:${start.y}`].cost = 0
+
+  let destination: string
+
+  while (unvisited.length) {
+    unvisited.sort((a, b) => graph[b].cost - graph[a].cost)
+    const current = unvisited.pop()
+
+    if (graph[current].cost === Infinity) {
+      throw new Error(`Path not found, unvisited: ${unvisited.length}`)
+    }
+
+    const nextCost = graph[current].cost + 1
+    for (let edge of graph[current].edges) {
+      if (nextCost < graph[edge].cost) {
+        graph[edge].cost = nextCost
+        graph[edge].via = current
+      }
+    }
+    // check if destination node is visited
+    if (current === `${end.x}:${end.y}`) {
+      destination = current
+      break
+    }
+  }
+
+  const result: Position[] = []
+  while (destination && graph[destination].cost > 0) {
+    const [x, y] = destination.split(':').map(Number)
+    result.unshift({ x, y })
+    destination = graph[destination].via
+  }
+  return result
+}
+
+export function getShortestPathFromTop(
+  graph: Graph,
+  end: Position
+): Position[] {
+  graph = cloneDeep(graph)
 
   const unvisited = Object.keys(graph)
   let minCost = Infinity
@@ -236,10 +175,10 @@ export function getShortestPathFromTop(
   return result
 }
 
-const graph = parseGraph(input)
+const graph = parseGraph(input, canGo)
 const { start, end } = parseStartEnd(input)
 console.log(getShortestPath(graph, start, end).length)
 
-const graph2 = parseReverseGraph(input)
+const graph2 = parseGraph(input, (from, to) => canGo(to, from))
 const { end: end2 } = parseStartEnd(input)
 console.log(getShortestPathFromTop(graph2, end2).length)

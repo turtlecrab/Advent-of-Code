@@ -3,7 +3,6 @@ import {
   parseStartEnd,
   parseGraph,
   getShortestPath,
-  parseReverseGraph,
   getShortestPathFromTop,
 } from './day12'
 
@@ -34,21 +33,17 @@ describe('parseStartEnd', () => {
 
 describe('parseGraph', () => {
   it('parses directional graph', () => {
-    const graph = parseGraph(testInput)
+    const graph = parseGraph(testInput, canGo)
 
-    expect(graph).toHaveLength(40)
-    expect(
-      graph.find(n => n.position.x === 1 && n.position.y === 1).edges.length
-    ).toBe(4)
-    expect(
-      graph.find(n => n.position.x === 2 && n.position.y === 3).edges.length
-    ).toBe(3)
+    expect(Object.keys(graph)).toHaveLength(40)
+    expect(graph['1:1'].edges).toHaveLength(4)
+    expect(graph['2:3'].edges).toHaveLength(3)
   })
 })
 
 describe('getShortestPath', () => {
   it('gets it', () => {
-    const graph = parseGraph(testInput)
+    const graph = parseGraph(testInput, canGo)
     const { start, end } = parseStartEnd(testInput)
 
     expect(getShortestPath(graph, start, end)).toBeTruthy()
@@ -58,7 +53,7 @@ describe('getShortestPath', () => {
 
 describe('getShortestPathFromTop', () => {
   it('gets it 🗻', () => {
-    const graph = parseReverseGraph(testInput)
+    const graph = parseGraph(testInput, (to, from) => canGo(from, to))
     const { end } = parseStartEnd(testInput)
 
     expect(getShortestPathFromTop(graph, end)).toHaveLength(29)
