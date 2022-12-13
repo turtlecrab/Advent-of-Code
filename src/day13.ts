@@ -1,4 +1,5 @@
 import * as fs from 'fs'
+import { isEqual } from 'lodash'
 
 const input = fs
   .readFileSync(__dirname + '/day13.input.txt', 'utf8')
@@ -62,6 +63,17 @@ export function getIndicesOfCorrectOnes(packets: Pair[]): number[] {
     }, [])
 }
 
+export function flatPackets(pairs: Pair[]): Data[] {
+  return pairs.flatMap(Object.values)
+}
+
+export function getDecoderKey(packets: Data[], dividers: Data[]): number {
+  const sorted = [...packets, ...dividers].sort(compareData)
+  const divIndices = dividers.map(d => sorted.findIndex(v => isEqual(d, v)) + 1)
+  return divIndices.reduce((a, b) => a * b)
+}
+
 console.log(
   getIndicesOfCorrectOnes(parsePackets(input)).reduce((a, b) => a + b)
 )
+console.log(getDecoderKey(flatPackets(parsePackets(input)), [[[2]], [[6]]]))

@@ -1,4 +1,10 @@
-import { compareData, getIndicesOfCorrectOnes, parsePackets } from './day13'
+import {
+  compareData,
+  flatPackets,
+  getDecoderKey,
+  getIndicesOfCorrectOnes,
+  parsePackets,
+} from './day13'
 
 const testInput = `[1,1,3,1,1]
 [1,1,5,1,1]
@@ -66,5 +72,13 @@ describe('getIndicesOfCorrectOnes', () => {
     expect(getIndicesOfCorrectOnes(parsePackets(testInput))).toEqual([
       1, 2, 4, 6,
     ])
+  })
+})
+
+describe('getDecoderKey', () => {
+  it('decodes', () => {
+    expect(
+      getDecoderKey(flatPackets(parsePackets(testInput)), [[[2]], [[6]]])
+    ).toBe(140)
   })
 })
