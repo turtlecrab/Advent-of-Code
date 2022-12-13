@@ -25,7 +25,7 @@ export function parsePackets(str: string): Pair[] {
 export function compareData(left: Data, right: Data): -1 | 0 | 1 {
   //
   // left < right    = -1  -> right order
-  // left < right    =  1  -> wrong order
+  // left > right    =  1  -> wrong order
   // left === right  =  0
   //
 
