@@ -1,4 +1,5 @@
 import * as fs from 'fs'
+import { cloneDeep } from 'lodash'
 
 const input = fs
   .readFileSync(__dirname + '/day14.input.txt', 'utf8')
@@ -157,7 +158,7 @@ export function nextStateUnpure(state: State): State {
   }
   if (state.justLanded) {
     // skip 1 frame
-    // (this is intended for visualization/animation)
+    // (this was intended for visualization/animation)
     state.currentSand = null
     state.finished = false
     state.justLanded = false
@@ -165,12 +166,14 @@ export function nextStateUnpure(state: State): State {
   }
   if (state.currentSand === null) {
     // emit new sand
-    const newSandPos = getDownVec(state.start)
+    const newSandPos = state.start
 
-    if (getTile(newSandPos) !== Tile.Empty)
-      throw new Error(
-        `Can\'t emit, tile not empty: ${JSON.stringify(newSandPos)}`
-      )
+    if (isSolid(getTile(newSandPos))) {
+      // can't emit, tile is filled with sand
+      state.finished = true
+      return state
+    }
+
     map[newSandPos.y][newSandPos.x] = Tile.CurrentSand
     state.currentSand = newSandPos
     state.finished = false
@@ -241,15 +244,29 @@ export function printMap(map: Map): void {
   )
 }
 
-export function simulateAndGetLandedCount(map: Map): number {
+export function getWideMap(map: Map): Map {
+  const addedWidth = map.length
+  const emptyHalfRow = Array(addedWidth).fill(Tile.Empty)
+  const wide = map.map(row => [...emptyHalfRow, ...row, ...emptyHalfRow])
+  const newWidth = wide[0].length
+  wide.push(Array(newWidth).fill(Tile.Empty))
+  wide.push(Array(newWidth).fill(Tile.Rock))
+  return wide
+}
+
+export function simulateAndGetLandedCount(
+  map: Map,
+  hasFloor: boolean = false
+): number {
+  const mapCopy = hasFloor ? getWideMap(map) : cloneDeep(map)
   const initialState = {
-    map,
-    start: getStart(map),
+    map: mapCopy,
+    start: getStart(mapCopy),
     currentSand: null,
     justLanded: false,
     finished: false,
   }
-  let state = initialState
+  let state: State = initialState
   while (!state.finished) {
     state = nextStateUnpure(state)
   }
@@ -263,3 +280,4 @@ const size = getSizeOfBoundaries(bounds)
 const map = buildMap(start, rocks, bounds.topLeft, size)
 
 console.log(simulateAndGetLandedCount(map))
+console.log(simulateAndGetLandedCount(map, true))
