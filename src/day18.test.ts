@@ -1,4 +1,10 @@
-import { getAdjacentSurfacesCount, getSurfaces, parseVoxels } from './day18'
+import {
+  getAdjacentSurfacesCount,
+  getBoundaries,
+  getOuterSurfaces,
+  getSurfaces,
+  parseVoxels,
+} from './day18'
 
 const testInput = `2,2,2
 1,2,2
@@ -55,5 +61,21 @@ describe('getSurfaces', () => {
   it('gets it', () => {
     const voxels = parseVoxels(testInput)
     expect(getSurfaces(voxels)).toBe(64)
+  })
+})
+
+describe('getBoundaries', () => {
+  it('gets it', () => {
+    expect(getBoundaries(parseVoxels(testInput))).toEqual({
+      x: [1, 3],
+      y: [1, 3],
+      z: [1, 6],
+    })
+  })
+})
+
+describe('getOuterSurfaces', () => {
+  it('gets it', () => {
+    expect(getOuterSurfaces(parseVoxels(testInput))).toBe(58)
   })
 })
