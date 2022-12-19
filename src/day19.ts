@@ -1,5 +1,4 @@
 import * as fs from 'fs'
-import { Z_FULL_FLUSH } from 'zlib'
 
 const input = fs
   .readFileSync(__dirname + '/day19.input.txt', 'utf8')
@@ -40,60 +39,111 @@ export function parseBlueprints(str: string): RobotBlueprint[] {
 
 const sumRes = (a: Res, b: Res): Res => a.map((r, i) => r + b[i]) as Res
 const subtractRes = (a: Res, b: Res): Res => a.map((r, i) => r - b[i]) as Res
-const multRes = (a: Res, factor: number): Res => a.map(r => r * factor) as Res
 const canAfford = (money: Res, price: Res): boolean =>
   subtractRes(money, price).every(r => r >= 0)
 
-export function simulate(blueprint: RobotBlueprint, minutes: number): number {
-  const state: State = {
+const serialize = (state: State, minutes: number): string =>
+  `${minutes}:${String(state.resources)}:${String(state.harvesters)}`
+
+let searched = 0
+let skipped = 0
+// let lastState
+
+export function simulate(
+  blueprint: RobotBlueprint,
+  minutes: number,
+  state?: State,
+  memo: { [key: string]: number } = {}
+): number {
+  const initialState: State = {
     resources: [0, 0, 0, 0],
     harvesters: [1, 0, 0, 0],
   }
+  state = state || initialState
 
-  const geodeFullPrice: Res = sumRes(
-    [blueprint.geode[0], 0, 0, 0],
-    multRes(blueprint.obsidian, blueprint.geode[0])
-  )
-  console.log('fullPrice', geodeFullPrice)
-  const ratioForObsidian = geodeFullPrice[1] / geodeFullPrice[0]
-
-  for (let i = 0; i < minutes; i++) {
-    // decide how to spend money
-    // console.log()
-    console.log(`${i + 1}:`, state.resources, state.harvesters)
-
-    let newHarvester: Res = [0, 0, 0, 0]
-    if (canAfford(state.resources, blueprint.geode)) {
-      state.resources = subtractRes(state.resources, blueprint.geode)
-      newHarvester = [0, 0, 0, 1]
-      console.log('Bought geode')
-    } else if (canAfford(state.resources, blueprint.obsidian)) {
-      state.resources = subtractRes(state.resources, blueprint.obsidian)
-      newHarvester = [0, 0, 1, 0]
-      console.log('Bought obsidian')
-    } else if (
-      canAfford(state.resources, blueprint.clay) &&
-      state.resources[1] / state.resources[0] < ratioForObsidian
-    ) {
-      console.log('Bought clay')
-
-      state.resources = subtractRes(state.resources, blueprint.clay)
-      newHarvester = [0, 1, 0, 0]
-    } else if (canAfford(state.resources, blueprint.ore)) {
-      console.log('Bought ore')
-
-      state.resources = subtractRes(state.resources, blueprint.ore)
-      newHarvester = [1, 0, 0, 0]
-    }
-
-    // harvest
-    state.resources = sumRes(state.resources, state.harvesters)
-
-    // add new harvester if we bought one
-    state.harvesters = sumRes(state.harvesters, newHarvester)
-    // console.log('new:', newHarvester)
-    // console.table(state)
+  if (serialize(state, minutes) in memo) {
+    skipped += 1
+    return memo[serialize(state, minutes)]
   }
-  console.log('blueprint:', blueprint)
-  return state.resources[3]
+
+  // console.log('min:', minutes, state.resources, state.harvesters)
+
+  if (minutes <= 0) return state.resources[3]
+
+  let branches = []
+
+  // 1. if we can buy geode, we should
+  if (canAfford(state.resources, blueprint.geode)) {
+    const newState: State = {
+      resources: subtractRes(state.resources, blueprint.geode),
+      harvesters: sumRes(state.harvesters, [0, 0, 0, 1]),
+    }
+    // console.log('bought geode')
+    // return simulate(blueprint, minutes - 1, newState, memo)
+    branches.push(simulate(blueprint, minutes - 1, newState, memo))
+  }
+
+  // collect all other branches
+  // 1.
+  if (canAfford(state.resources, blueprint.obsidian)) {
+    const newState: State = {
+      resources: sumRes(
+        subtractRes(state.resources, blueprint.obsidian),
+        state.harvesters
+      ),
+      harvesters: sumRes(state.harvesters, [0, 0, 1, 0]),
+    }
+    // console.log('bought obsidian')
+    branches.push(simulate(blueprint, minutes - 1, newState, memo))
+  }
+  // 2.
+  if (canAfford(state.resources, blueprint.clay)) {
+    const newState: State = {
+      resources: sumRes(
+        subtractRes(state.resources, blueprint.clay),
+        state.harvesters
+      ),
+      harvesters: sumRes(state.harvesters, [0, 1, 0, 0]),
+    }
+    // console.log('bought clay')
+    branches.push(simulate(blueprint, minutes - 1, newState, memo))
+  }
+  // 3.
+  if (canAfford(state.resources, blueprint.ore)) {
+    const newState: State = {
+      resources: sumRes(
+        subtractRes(state.resources, blueprint.ore),
+        state.harvesters
+      ),
+      harvesters: sumRes(state.harvesters, [1, 0, 0, 0]),
+    }
+    // console.log('bought ore')
+    branches.push(simulate(blueprint, minutes - 1, newState, memo))
+  }
+  // buy nothing
+  // 4.
+  const newState: State = {
+    resources: sumRes(state.resources, state.harvesters),
+    harvesters: state.harvesters,
+  }
+  branches.push(simulate(blueprint, minutes - 1, newState, memo))
+
+  const result = Math.max(...branches)
+  memo[serialize(state, minutes)] = result
+  searched += branches.length
+  return result
 }
+
+// let a = performance.now()
+
+// const testInput = `Blueprint 1: Each ore robot costs 4 ore. Each clay robot costs 2 ore. Each obsidian robot costs 3 ore and 14 clay. Each geode robot costs 2 ore and 7 obsidian.
+// Blueprint 2: Each ore robot costs 2 ore. Each clay robot costs 3 ore. Each obsidian robot costs 3 ore and 8 clay. Each geode robot costs 3 ore and 12 obsidian.`
+
+// const blueprints = parseBlueprints(testInput)
+// console.table(blueprints[0])
+// console.log(simulate(blueprints[0], 24))
+// console.log('searched:', searched)
+// console.log('skipped:', skipped)
+// console.log('searched + skipped:', searched + skipped)
+
+// console.log('time:', performance.now() - a)
