@@ -53,8 +53,8 @@ export function simulate(
   blueprint: RobotBlueprint,
   minutes: number,
   state?: State,
-  memo: { [key: string]: number } = {}
-): number {
+  memo: { [key: string]: { last: State; geos: number } } = {}
+): { last: State; geos: number } {
   const initialState: State = {
     resources: [0, 0, 0, 0],
     harvesters: [1, 0, 0, 0],
@@ -68,19 +68,22 @@ export function simulate(
 
   // console.log('min:', minutes, state.resources, state.harvesters)
 
-  if (minutes <= 0) return state.resources[3]
+  if (minutes <= 0)
+    return {
+      last: state,
+      geos: state.resources[3],
+    }
 
   let branches = []
 
-  // 1. if we can buy geode, we should
+  // if we can buy geode, we should
   if (canAfford(state.resources, blueprint.geode)) {
     const newState: State = {
       resources: subtractRes(state.resources, blueprint.geode),
       harvesters: sumRes(state.harvesters, [0, 0, 0, 1]),
     }
     // console.log('bought geode')
-    // return simulate(blueprint, minutes - 1, newState, memo)
-    branches.push(simulate(blueprint, minutes - 1, newState, memo))
+    return simulate(blueprint, minutes - 1, newState, memo)
   }
 
   // collect all other branches
@@ -128,7 +131,9 @@ export function simulate(
   }
   branches.push(simulate(blueprint, minutes - 1, newState, memo))
 
-  const result = Math.max(...branches)
+  branches.sort((a, b) => b.geos - a.geos)
+  const result = branches[0]
+  // console.log(result)
   memo[serialize(state, minutes)] = result
   searched += branches.length
   return result
