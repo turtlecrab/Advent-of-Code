@@ -1,4 +1,4 @@
-import { getYell, parseMonkeys } from './day21'
+import { getHumnValue, getYell, parseMonkeys } from './day21'
 
 const testInput = `root: pppw + sjmn
 dbpl: 5
@@ -26,5 +26,11 @@ describe('parseMonkeys', () => {
 describe('getYell', () => {
   it('gets the root yell', () => {
     expect(getYell(parseMonkeys(testInput))).toBe(152)
+  })
+})
+
+describe('getHumnValue', () => {
+  it('gets it', () => {
+    expect(getHumnValue(parseMonkeys(testInput))).toBe(301)
   })
 })
