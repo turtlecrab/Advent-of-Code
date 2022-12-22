@@ -105,6 +105,203 @@ export function getNextPosition(
   }
 }
 
+// not used yet due to hardcoded nature of getNextCubePosition()
+export function getCubeSize(map: Map): number {
+  return Math.sqrt(map.flat().filter(tile => tile !== Tile.Void).length / 6)
+}
+
+export function isWall(map: Map, p: Position): boolean {
+  return map[p.y][p.x] === Tile.Wall
+}
+
+/**
+ * doesn't work for test input
+ * @returns position and facing after 1 step
+ */
+export function getNextCubePosition(
+  map: Map,
+  p: Position,
+  facing: Facing
+): { position: Position; facing: Facing } {
+  // TODO: unhardcode
+  // 1
+  if (p.x >= 50 && p.x < 100 && p.y === 0 && facing === Facing.Up) {
+    const next = {
+      x: 0,
+      y: p.x - 50 + 150,
+    }
+    if (isWall(map, next)) return { position: p, facing }
+    return {
+      position: next,
+      facing: Facing.Right,
+    }
+  }
+  // 2
+  if (p.x >= 100 && p.x < 150 && p.y === 0 && facing === Facing.Up) {
+    const next = {
+      x: p.x - 100,
+      y: 199,
+    }
+    if (isWall(map, next)) return { position: p, facing }
+    return {
+      position: next,
+      facing: Facing.Up,
+    }
+  }
+  // 3
+  if (p.x === 50 && p.y < 50 && facing === Facing.Left) {
+    const next = {
+      x: 0,
+      y: 149 - p.y,
+    }
+    if (isWall(map, next)) return { position: p, facing }
+    return {
+      position: next,
+      facing: Facing.Right,
+    }
+  }
+  // 4
+  if (p.x === 149 && p.y < 50 && facing === Facing.Right) {
+    const next = {
+      x: p.x - 50,
+      y: 149 - p.y,
+    }
+    if (isWall(map, next)) return { position: p, facing }
+    return {
+      position: next,
+      facing: Facing.Left,
+    }
+  }
+  // 5
+  if (p.x >= 100 && p.y === 49 && facing === Facing.Down) {
+    const next = {
+      x: 99,
+      y: p.x - 50,
+    }
+    if (isWall(map, next)) return { position: p, facing }
+    return {
+      position: next,
+      facing: Facing.Left,
+    }
+  }
+  // 6
+  if (p.x === 50 && p.y >= 50 && p.y < 100 && facing === Facing.Left) {
+    const next = {
+      x: p.y - 50,
+      y: 100,
+    }
+    if (isWall(map, next)) return { position: p, facing }
+    return {
+      position: next,
+      facing: Facing.Down,
+    }
+  }
+  // 7
+  if (p.x === 99 && p.y >= 50 && p.y < 100 && facing === Facing.Right) {
+    const next = {
+      x: p.y + 50,
+      y: 49,
+    }
+    if (isWall(map, next)) return { position: p, facing }
+    return {
+      position: next,
+      facing: Facing.Up,
+    }
+  }
+  // 8
+  if (p.x < 50 && p.y === 100 && facing === Facing.Up) {
+    const next = {
+      x: 50,
+      y: p.x + 50,
+    }
+    if (isWall(map, next)) return { position: p, facing }
+    return {
+      position: next,
+      facing: Facing.Right,
+    }
+  }
+  // 9
+  if (p.x === 0 && p.y >= 100 && p.y < 150 && facing === Facing.Left) {
+    const next = {
+      x: 50,
+      y: 149 - p.y,
+    }
+    if (isWall(map, next)) return { position: p, facing }
+    return {
+      position: next,
+      facing: Facing.Right,
+    }
+  }
+  // 10
+  if (p.x === 99 && p.y >= 100 && p.y < 150 && facing === Facing.Right) {
+    const next = {
+      x: 149,
+      y: 149 - p.y,
+    }
+    if (isWall(map, next)) return { position: p, facing }
+    return {
+      position: next,
+      facing: Facing.Left,
+    }
+  }
+  // 11
+  if (p.x >= 50 && p.x < 100 && p.y === 149 && facing === Facing.Down) {
+    const next = {
+      x: 49,
+      y: p.x + 100,
+    }
+    if (isWall(map, next)) return { position: p, facing }
+    return {
+      position: next,
+      facing: Facing.Left,
+    }
+  }
+  // 12
+  if (p.x === 0 && p.y >= 150 && facing === Facing.Left) {
+    const next = {
+      x: p.y - 100,
+      y: 0,
+    }
+    if (isWall(map, next)) return { position: p, facing }
+    return {
+      position: next,
+      facing: Facing.Down,
+    }
+  }
+  // 13
+  if (p.x === 49 && p.y >= 150 && facing === Facing.Right) {
+    const next = {
+      x: p.y - 100,
+      y: 149,
+    }
+    if (isWall(map, next)) return { position: p, facing }
+    return {
+      position: next,
+      facing: Facing.Up,
+    }
+  }
+  // 14
+  if (p.x < 50 && p.y === 199 && facing === Facing.Down) {
+    const next = {
+      x: p.x + 100,
+      y: 0,
+    }
+    if (isWall(map, next)) return { position: p, facing }
+    return {
+      position: {
+        x: p.x + 100,
+        y: 0,
+      },
+      facing: Facing.Down,
+    }
+  }
+  // not crossing edge
+  return {
+    position: getNextPosition(map, p, facing),
+    facing,
+  }
+}
+
 export function play(
   map: Map,
   player: Position,
@@ -117,6 +314,31 @@ export function play(
     // move
     for (let i = 0; i < move.steps; i++) {
       position = getNextPosition(map, position, facing)
+    }
+    // turn
+    if (move.turn === 'R') {
+      facing = (facing + 1) % 4
+    } else if (move.turn === 'L') {
+      facing = (facing - 1 + 4) % 4
+    }
+  }
+  return { position, facing }
+}
+
+export function playCube(
+  map: Map,
+  player: Position,
+  moves: Move[]
+): { position: Position; facing: Facing } {
+  let position = player
+  let facing = Facing.Right
+
+  for (let move of moves) {
+    // move
+    for (let i = 0; i < move.steps; i++) {
+      const next = getNextCubePosition(map, position, facing)
+      position = next.position
+      facing = next.facing
     }
     // turn
     if (move.turn === 'R') {
@@ -160,3 +382,6 @@ const { map, moves } = parseInput(input)
 const player = getStartingPosition(map)
 const { position, facing } = play(map, player, moves)
 console.log(getPassword(position.y, position.x, facing))
+
+const { position: pos2, facing: facing2 } = playCube(map, player, moves)
+console.log(getPassword(pos2.y, pos2.x, facing2))
