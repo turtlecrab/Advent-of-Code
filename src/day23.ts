@@ -1,4 +1,5 @@
 import * as fs from 'fs'
+import { isEqual } from 'lodash'
 
 const input = fs
   .readFileSync(__dirname + '/day23.input.txt', 'utf8')
@@ -137,4 +138,22 @@ export function getEmptiness(elves: Elves): number {
   return area - newElves.size
 }
 
+export function simulateUntilChill(elves: Elves): number {
+  let dir: Direction = Direction.Up
+  let rounds = 0
+
+  while (true) {
+    rounds += 1
+    const nextElves = round(elves, dir)
+    if (isEqual(elves, nextElves)) {
+      break
+    }
+    elves = nextElves
+    dir = (dir + 1) % 4
+  }
+  return rounds
+}
+
 console.log(getEmptiness(parseElves(input)))
+
+console.log(simulateUntilChill(parseElves(input)))

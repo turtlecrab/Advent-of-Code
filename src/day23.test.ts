@@ -8,6 +8,7 @@ import {
   parseElves,
   round,
   simulate,
+  simulateUntilChill,
 } from './day23'
 
 const testInput = `.....
@@ -123,5 +124,11 @@ describe('simulate', () => {
 describe('getEmptiness', () => {
   it('gets it', () => {
     expect(getEmptiness(parseElves(testInput2))).toBe(110)
+  })
+})
+
+describe('simulateUntilChill', () => {
+  it('gets rounds', () => {
+    expect(simulateUntilChill(parseElves(testInput2))).toBe(20)
   })
 })
