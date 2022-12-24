@@ -4,9 +4,11 @@ import { PerspectiveCamera, OrbitControls } from '@react-three/drei'
 import { Checkbox } from '@mantine/core'
 import { useState } from 'react'
 
+import { Vec } from './Day18'
+
 interface Props {
-  voxels: [number, number, number][]
-  center: [number, number, number]
+  voxels: Vec[]
+  center: Vec
 }
 
 function View({ voxels, center }: Props) {
@@ -19,7 +21,6 @@ function View({ voxels, center }: Props) {
     <>
       <Container>
         <Canvas>
-          {/* [12, 12, 40] */}
           <PerspectiveCamera
             makeDefault
             position={[maxSide * 3, maxSide * 3, maxSide * 3]}
@@ -29,8 +30,6 @@ function View({ voxels, center }: Props) {
             autoRotateSpeed={2}
             target={center}
           />
-
-          {/* <ambientLight /> */}
           <ambientLight intensity={0.02} />
           <directionalLight
             color="white"
@@ -44,7 +43,7 @@ function View({ voxels, center }: Props) {
           ))}
         </Canvas>
       </Container>
-      <div style={{ display: 'flex', gap: 24, justifyContent: 'end' }}>
+      <BottomControls>
         <Checkbox
           checked={rotate}
           onChange={e => setRotate(e.currentTarget.checked)}
@@ -55,14 +54,7 @@ function View({ voxels, center }: Props) {
           onChange={e => setWireframe(e.currentTarget.checked)}
           label="Wireframes"
         />
-      </div>
-
-      {/* <div style={{ display: 'flex', gap: 12 }}>
-        {center.map((n, i) => (
-          <p key={i}>{n}</p>
-        ))}
-        <p>maxSide: {maxSide}</p>
-      </div> */}
+      </BottomControls>
     </>
   )
 }
@@ -73,9 +65,11 @@ function Voxel(
   return (
     <mesh {...props}>
       <boxGeometry args={[1, 1, 1]} />
-      <meshStandardMaterial color={props.color || 'white'} />
-      {/* <meshPhongMaterial /> */}
-      {props.wireframe && <meshNormalMaterial wireframe />}
+      {props.wireframe ? (
+        <meshNormalMaterial wireframe />
+      ) : (
+        <meshStandardMaterial color={props.color || 'white'} />
+      )}
     </mesh>
   )
 }
@@ -83,6 +77,12 @@ function Voxel(
 const Container = styled.div`
   width: 480px;
   height: 480px;
+`
+
+const BottomControls = styled.div`
+  display: flex;
+  gap: 24px;
+  justify-content: end;
 `
 
 export default View

@@ -24,7 +24,7 @@ function Loader12() {
         </TopSection>
         <Day18 input={inputs[selectedInput]} key={selectedInput} />
         <p>
-          <a href="https://adventofcode.com/2022/day/12">
+          <a href="https://adventofcode.com/2022/day/18">
             Day 18: Boiling Boulders
           </a>
         </p>
