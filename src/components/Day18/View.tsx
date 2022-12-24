@@ -75,8 +75,12 @@ function Voxel(
 }
 
 const Container = styled.div`
-  width: 480px;
-  height: 480px;
+  width: 100%;
+  aspect-ratio: 1;
+
+  @media screen and (min-width: 600px) {
+    width: 480px;
+  }
 `
 
 const BottomControls = styled.div`

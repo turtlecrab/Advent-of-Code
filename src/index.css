@@ -40,7 +40,7 @@ body {
 }
 
 body > #root {
-  min-width: 375px;
+  min-width: 320px;
   /* background-color: #8881; */
   border: 1px dashed #8885;
   padding: 12px;
