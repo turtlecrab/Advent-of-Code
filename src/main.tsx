@@ -9,6 +9,7 @@ import Home from './components/Home'
 import Loader09 from './components/Day09/Loader09'
 import Loader10 from './components/Day10/Loader10'
 import Loader12 from './components/Day12/Loader12'
+import Loader18 from './components/Day18/Loader18'
 
 const theme: MantineThemeOverride = {
   colorScheme: 'dark',
@@ -35,6 +36,10 @@ const router = createBrowserRouter([
       {
         path: 'day12',
         element: <Loader12 />,
+      },
+      {
+        path: 'day18',
+        element: <Loader18 />,
       },
     ],
   },

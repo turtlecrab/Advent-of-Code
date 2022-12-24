@@ -7,6 +7,7 @@ function Home() {
       <DayLink to="day09">Day 09</DayLink>
       <DayLink to="day10">Day 10</DayLink>
       <DayLink to="day12">Day 12</DayLink>
+      <DayLink to="day18">Day 18</DayLink>
     </Container>
   )
 }
