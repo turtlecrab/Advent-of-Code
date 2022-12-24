@@ -18,10 +18,9 @@ function Day18({ input }: Props) {
 
     const bounds = getBoundaries(voxelsSet)
     const center: Vec = [
-      // TODO: find proper offset
-      (bounds.x[1] - bounds.x[0]) / 2 + 0,
-      (bounds.y[1] - bounds.y[0]) / 2 + 0,
-      (bounds.z[1] - bounds.y[0]) / 2 + 0,
+      (bounds.x[1] - bounds.x[0]) / 2 + bounds.x[0],
+      (bounds.y[1] - bounds.y[0]) / 2 + bounds.y[0],
+      (bounds.z[1] - bounds.z[0]) / 2 + bounds.z[0],
     ]
 
     return { size: voxels.length, voxels, center }
