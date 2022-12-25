@@ -22,7 +22,7 @@ export function printBlizzards(
   let map = blizzards.map(row =>
     row.map(el => (el.length > 1 ? el.length : el.length > 0 ? el[0] : '.'))
   ) as any
-  if (player) map[player.y][player.x] = 'E'
+  if (player && map[player.y]) map[player.y][player.x] = 'E'
   return map.map(r => r.join('')).join('\n')
 }
 
@@ -63,6 +63,6 @@ describe('play', () => {
     const blizzards = parseBlizzards(testInput)
     const endState = play(blizzards)
     // console.log(printStateChain(endState, blizzards))
-    expect(endState.steps + 1).toBe(18)
+    expect(endState.steps).toBe(18)
   })
 })

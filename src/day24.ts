@@ -101,9 +101,16 @@ export function move(pos: Position, dir: Direction): Position {
   if (dir === Direction.Right) return { x: pos.x + 1, y: pos.y }
 }
 
-export function play(blizzards: Blizzards): State {
+export function play(
+  blizzards: Blizzards,
+  start?: Position,
+  finish?: Position
+): State {
   const height = blizzards.length
   const width = blizzards[0].length
+
+  start = start || { x: 0, y: -1 }
+  finish = finish || { x: width - 1, y: height }
 
   const moves = [
     [1, 0],
@@ -113,16 +120,12 @@ export function play(blizzards: Blizzards): State {
     [-1, 0],
   ]
 
-  let pos: Position = { x: 0, y: -1 }
-
   const queue: State[] = []
   const memo = [blizzards]
 
-  // just hop onto the first position, don't wanna handle negative position
-  // TODO: make it work for inputs where we need to wait first
   queue.push({
-    steps: 1,
-    pos: { x: 0, y: 0 },
+    steps: 0,
+    pos: start,
     via: null,
   })
 
@@ -130,7 +133,7 @@ export function play(blizzards: Blizzards): State {
     const state = queue.shift()
     const { pos, steps } = state
 
-    if (pos.x === width - 1 && pos.y === height - 1) {
+    if (pos.x === finish.x && pos.y === finish.y) {
       return state
     }
 
@@ -138,11 +141,13 @@ export function play(blizzards: Blizzards): State {
 
     for (let [x, y] of moves) {
       if (
-        pos.x + x >= 0 &&
-        pos.x + x < width &&
-        pos.y + y >= 0 &&
-        pos.y + y < height &&
-        next[pos.y + y][pos.x + x].length === 0 &&
+        ((pos.x + x === start.x && pos.y + y === start.y) ||
+          (pos.x + x === finish.x && pos.y + y === finish.y) ||
+          (pos.x + x >= 0 &&
+            pos.x + x < width &&
+            pos.y + y >= 0 &&
+            pos.y + y < height &&
+            next[pos.y + y][pos.x + x].length === 0)) &&
         // TODO: optimize?
         queue.findIndex(
           el =>
@@ -161,4 +166,19 @@ export function play(blizzards: Blizzards): State {
   }
 }
 
-console.log(play(parseBlizzards(input)).steps + 1)
+const blizzards = parseBlizzards(input)
+const finished = play(blizzards)
+
+// part 1
+console.log(finished.steps)
+
+const finishedBlizzards = getBlizzardsAt(finished.steps, [blizzards])
+const backToSnacks = play(finishedBlizzards, finished.pos, { x: 0, y: -1 })
+
+const snacksBlizzards = getBlizzardsAt(finished.steps + backToSnacks.steps, [
+  blizzards,
+])
+const finishedWithSnacks = play(snacksBlizzards)
+
+// part 2
+console.log(finished.steps + backToSnacks.steps + finishedWithSnacks.steps)
