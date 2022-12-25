@@ -1,6 +1,6 @@
 import React, { lazy, Suspense } from 'react'
 import ReactDOM from 'react-dom/client'
-import { MantineProvider, MantineThemeOverride } from '@mantine/core'
+import { MantineProvider } from '@mantine/core'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 
 import './index.css'
@@ -12,11 +12,8 @@ import Loader12 from './components/Day12/Loader12'
 const Loader18 = lazy(() => import('./components/Day18/Loader18'))
 import Spinner from './components/Spinner'
 
-const theme: MantineThemeOverride = {
-  colorScheme: 'dark',
-  fontFamily: 'Inter, Avenir, Helvetica, Arial, sans-serif',
-  primaryColor: 'lime',
-}
+import { theme } from './theme'
+
 const router = createBrowserRouter([
   {
     path: '/',

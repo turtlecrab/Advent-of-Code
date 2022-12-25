@@ -1,6 +1,7 @@
 import { MantineProvider, Select } from '@mantine/core'
 import { useState } from 'react'
 import styled from 'styled-components'
+import { grayTheme } from '../../theme'
 
 import Day18 from './Day18'
 import { inputs } from './input18'
@@ -10,7 +11,7 @@ function Loader12() {
 
   return (
     <Container>
-      <MantineProvider theme={{ primaryColor: 'gray', colorScheme: 'dark' }}>
+      <MantineProvider theme={grayTheme}>
         <TopSection>
           <Header>Day 18</Header>
           <Select
