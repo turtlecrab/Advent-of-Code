@@ -10,7 +10,7 @@
   line-height: 24px;
   font-weight: 400;
 
-  color-scheme: light dark;
+  /* color-scheme: light dark; */
   color: rgba(255, 255, 255, 0.87);
   background-color: #242424;
 
@@ -35,6 +35,7 @@ body {
   margin: 12px 8px;
   display: flex;
   flex-direction: column;
+  background-color: #242424;
 }
 
 @media screen and (min-width: 400px) {
