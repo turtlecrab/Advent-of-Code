@@ -59,12 +59,20 @@ export function getCounterForm(voxels: Set<string>): Set<string> {
 
   const filled = new Set<string>()
 
-  function fill(x: number, y: number, z: number): void {
+  const stack: [number, number, number][] = []
+
+  stack.push([min.x, min.y, min.z])
+
+  // non-recursion version made for web so chrome's call stack won't overflow
+  // original version used recursion
+  while (stack.length) {
+    const [x, y, z] = stack.pop()!
+
     // already filled check
-    if (filled.has(vec(x, y, z))) return
+    if (filled.has(vec(x, y, z))) continue
 
     // wall check
-    if (voxels.has(vec(x, y, z))) return
+    if (voxels.has(vec(x, y, z))) continue
 
     // boundary checks
     if (
@@ -75,19 +83,17 @@ export function getCounterForm(voxels: Set<string>): Set<string> {
       z < min.z ||
       z > max.z
     )
-      return
+      continue
 
     filled.add(vec(x, y, z))
 
-    fill(x + 1, y, z)
-    fill(x - 1, y, z)
-    fill(x, y + 1, z)
-    fill(x, y - 1, z)
-    fill(x, y, z + 1)
-    fill(x, y, z - 1)
+    stack.push([x + 1, y, z])
+    stack.push([x - 1, y, z])
+    stack.push([x, y + 1, z])
+    stack.push([x, y - 1, z])
+    stack.push([x, y, z + 1])
+    stack.push([x, y, z - 1])
   }
-  fill(min.x, min.y, min.z)
-
   return filled
 }
 
