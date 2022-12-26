@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react'
 
 import Controls from '../Controls'
 import View from './View'
-import { getBoundaries, parseVoxels } from './solution18'
+import { getBoundaries, getCounterForm, parseVoxels } from './solution18'
 
 export type Vec = [number, number, number]
 
@@ -12,7 +12,7 @@ interface Props {
 }
 
 function Day18({ input }: Props) {
-  const { size, voxels, center } = useMemo(() => {
+  const { size, voxels, center, enclosed } = useMemo(() => {
     const voxelsSet = parseVoxels(input)
     const voxels = [...voxelsSet].map(s => s.split(',').map(Number)) as Vec[]
 
@@ -23,7 +23,22 @@ function Day18({ input }: Props) {
       (bounds.z[1] - bounds.z[0]) / 2 + bounds.z[0],
     ]
 
-    return { size: voxels.length, voxels, center }
+    const counter = getCounterForm(voxelsSet)
+    const enclosed: Vec[] = []
+    for (let x = bounds.x[0]; x <= bounds.x[1]; x++) {
+      for (let y = bounds.y[0]; y <= bounds.y[1]; y++) {
+        for (let z = bounds.z[0]; z <= bounds.z[1]; z++) {
+          if (
+            !voxelsSet.has(`${x},${y},${z}`) &&
+            !counter.has(`${x},${y},${z}`)
+          ) {
+            enclosed.push([x, y, z])
+          }
+        }
+      }
+    }
+
+    return { size: voxels.length, voxels, center, enclosed }
   }, [input])
 
   const [show, setShow] = useState(size)
@@ -37,7 +52,7 @@ function Day18({ input }: Props) {
         fastSpeed={100}
         slowSpeed={500}
       />
-      <View voxels={voxels.slice(0, show)} center={center} />
+      <View voxels={voxels} show={show} center={center} enclosed={enclosed} />
     </>
   )
 }
