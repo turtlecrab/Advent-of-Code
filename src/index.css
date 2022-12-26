@@ -32,11 +32,15 @@ a:hover {
 }
 
 body {
-  margin: 20px;
+  margin: 12px 8px;
   display: flex;
   flex-direction: column;
-  /* align-items: center; */
-  /* justify-content: center; */
+}
+
+@media screen and (min-width: 400px) {
+  body {
+    margin: 20px;
+  }
 }
 
 body > #root {

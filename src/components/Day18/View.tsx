@@ -126,6 +126,7 @@ const BottomControls = styled.div`
   gap: 24px;
   justify-content: end;
   margin-top: 8px;
+  flex-wrap: wrap;
 `
 
 export default View

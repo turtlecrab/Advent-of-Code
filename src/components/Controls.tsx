@@ -60,15 +60,14 @@ function Controls({ current, setCurrent, max, fastSpeed, slowSpeed }: Props) {
         <Button disabled={current === max} onClick={incAndStop}>
           →
         </Button>
-        <Radio.Group
+        <RadioGroup
           name="speed"
           value={slowMode ? 'slow' : 'fast'}
           onChange={handleModeChange}
-          style={{ marginLeft: 48 }}
         >
           <Radio value="slow" label="Slow" />
           <Radio value="fast" label="Fast" />
-        </Radio.Group>
+        </RadioGroup>
       </div>
       <Slider min={0} max={max} value={current} onChange={setAndStop} />
     </Container>
@@ -84,6 +83,14 @@ const Container = styled.div`
   & > div {
     display: flex;
     gap: 10px;
+  }
+`
+
+const RadioGroup = styled(Radio.Group)`
+  margin-left: 24px;
+
+  @media screen and (min-width: 400px) {
+    margin-left: 48px;
   }
 `
 
