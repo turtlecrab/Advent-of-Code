@@ -1,4 +1,12 @@
-import { bag, getPossibleSum, isGamePossible, isSetPossible } from './day02'
+import {
+  bag,
+  getMinimumSet,
+  getPossibleSum,
+  getSumPowerOfMinimumSets,
+  isGamePossible,
+  isSetPossible,
+  parseSet,
+} from './day02'
 
 const testInput = `Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
 Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
@@ -47,5 +55,52 @@ describe('isGamePossible', () => {
 describe('getPossibleSum', () => {
   it('calculates sum', () => {
     expect(getPossibleSum(testInput, bag)).toBe(8)
+  })
+})
+
+describe('parseSet', () => {
+  it('parses cube set', () => {
+    expect(parseSet('3 blue, 4 red')).toEqual({ blue: 3, red: 4 })
+    expect(parseSet('3 green, 15 blue, 14 red')).toEqual({
+      blue: 15,
+      red: 14,
+      green: 3,
+    })
+  })
+})
+
+describe('getMinimumSet', () => {
+  it('gets minimum cube set', () => {
+    expect(
+      getMinimumSet('Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green')
+    ).toStrictEqual({
+      red: 4,
+      green: 2,
+      blue: 6,
+    })
+    expect(
+      getMinimumSet(
+        'Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue'
+      )
+    ).toEqual({
+      red: 1,
+      green: 3,
+      blue: 4,
+    })
+    expect(
+      getMinimumSet(
+        'Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red'
+      )
+    ).toEqual({
+      red: 14,
+      green: 3,
+      blue: 15,
+    })
+  })
+})
+
+describe('getSumPowerOfMinimumSets', () => {
+  it('gets it', () => {
+    expect(getSumPowerOfMinimumSets(testInput)).toBe(2286)
   })
 })

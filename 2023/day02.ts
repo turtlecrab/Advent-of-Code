@@ -10,6 +10,12 @@ export type Bag = {
   blue: number
 }
 
+export type CubeSet = {
+  red?: number
+  green?: number
+  blue?: number
+}
+
 export const bag: Bag = {
   red: 12,
   green: 13,
@@ -45,4 +51,31 @@ export function getPossibleSum(games: string, bag: Bag) {
   }, 0)
 }
 
+export function parseSet(set: string): CubeSet {
+  return set.split(', ').reduce((acc, cur) => {
+    const [amount, color] = cur.split(' ')
+    acc[color] = Number(amount)
+    return acc
+  }, {})
+}
+
+export function getMinimumSet(game: string): CubeSet {
+  const sets = game.split(': ')[1].split('; ').map(parseSet)
+
+  return sets.reduce((acc, cur) => {
+    for (let color of Object.keys(cur)) {
+      acc[color] = acc[color] ? Math.max(acc[color], cur[color]) : cur[color]
+    }
+    return acc
+  })
+}
+
+export function getSumPowerOfMinimumSets(games: string): number {
+  return games.split('\n').reduce((sum, game) => {
+    const power = Object.values(getMinimumSet(game)).reduce((a, c) => a * c)
+    return sum + power
+  }, 0)
+}
+
 console.log(getPossibleSum(input, bag))
+console.log(getSumPowerOfMinimumSets(input))
