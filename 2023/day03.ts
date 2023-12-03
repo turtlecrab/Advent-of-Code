@@ -58,8 +58,12 @@ export function getNumbersAdjacentToSymbols(map: Map): number[] {
   })
 }
 
-type Gears = {
-  [key: string]: number[] // "y:x" : [1, 2, ...]
+/**
+ * @key gear coordinate in `y:x` format
+ * @value array of all adjacent numbers
+ */
+type GearsDict = {
+  [key: string]: number[]
 }
 
 export function getAdjacentGears(
@@ -87,8 +91,8 @@ export function getAdjacentGears(
   return result
 }
 
-export function getAllGears(map: Map): Gears {
-  const result: Gears = {}
+export function getAllGears(map: Map): GearsDict {
+  const result: GearsDict = {}
 
   for (let y = 0; y < map.length; y++) {
     let numBuffer = ''
@@ -114,7 +118,7 @@ export function getAllGears(map: Map): Gears {
   return result
 }
 
-export function filterProperGears(gears: Gears): Gears {
+export function filterProperGears(gears: GearsDict): GearsDict {
   return Object.keys(gears)
     .filter(gear => gears[gear].length === 2)
     .reduce((acc, cur) => {
@@ -123,7 +127,7 @@ export function filterProperGears(gears: Gears): Gears {
     }, {})
 }
 
-export function sumOfGearRatios(gears: Gears): number {
+export function sumOfGearRatios(gears: GearsDict): number {
   return Object.values(gears)
     .map(([a, b]) => a * b)
     .reduce((a, c) => a + c)
