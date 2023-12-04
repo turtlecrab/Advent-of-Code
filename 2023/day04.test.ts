@@ -1,4 +1,4 @@
-import { getTotalWorth, getWorth, parseCard } from './day04'
+import { getTotalCards, getTotalWorth, getWorth, parseCard } from './day04'
 
 const testInput = `Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53
 Card 2: 13 32 20 16 61 | 61 30 68 82 17 32 24 19
@@ -47,5 +47,11 @@ describe('getWorth', () => {
 describe('getTotalWorth', () => {
   it('calculates total worth', () => {
     expect(getTotalWorth(testInput)).toBe(13)
+  })
+})
+
+describe('getTotalCards', () => {
+  it('calculates all cards', () => {
+    expect(getTotalCards(testInput)).toBe(30)
   })
 })

@@ -21,8 +21,12 @@ export function parseCard(str: string): Card {
   }
 }
 
+export function getMatches(card: Card): number {
+  return card.hand.filter(n => card.winning.includes(n)).length
+}
+
 export function getWorth(card: Card): number {
-  const matches = card.hand.filter(n => card.winning.includes(n)).length
+  const matches = getMatches(card)
 
   if (matches === 0) return 0
 
@@ -37,4 +41,21 @@ export function getTotalWorth(input: string): number {
     .reduce((a, c) => a + c)
 }
 
+export function getTotalCards(input: string): number {
+  const lines = input.split('\n')
+  const cards = Array(lines.length).fill(1)
+
+  for (let i = 0; i < lines.length; i++) {
+    const matches = getMatches(parseCard(lines[i]))
+
+    for (let j = i + 1; j <= i + matches; j++) {
+      cards[j] += cards[i]
+    }
+  }
+
+  return cards.reduce((a, c) => a + c)
+}
+
 console.log(getTotalWorth(input))
+
+console.log(getTotalCards(input))
