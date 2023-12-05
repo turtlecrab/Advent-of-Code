@@ -1,4 +1,11 @@
-import { getLocations, parseAll, parseMap, transform } from './day05'
+import {
+  getLocations,
+  getMinLocationOfRanges,
+  parseAll,
+  parseMap,
+  seedRangesFromRawData,
+  transform,
+} from './day05'
 
 const testInput = `seeds: 79 14 55 13
 
@@ -58,5 +65,13 @@ describe('getLocations', () => {
 
   it('gets em', () => {
     expect(getLocations(seeds, maps)).toEqual([82, 43, 86, 35])
+  })
+})
+
+describe('getMinLocationOfRanges', () => {
+  const { seeds, maps } = parseAll(testInput)
+
+  it('gets it', () => {
+    expect(getMinLocationOfRanges(seedRangesFromRawData(seeds), maps)).toBe(46)
   })
 })
