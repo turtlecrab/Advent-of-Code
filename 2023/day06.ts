@@ -20,18 +20,17 @@ export function parseData2(str: string) {
 }
 
 export function getAmount(time: number, record: number): number {
-  const middle = Math.floor(time / 2)
+  // x * (time - x) - record = 0
+  // -x^2 + x*time - record = 0
+  // a = -1, b = time, c = -record
+  // D = b^2 - 4*a*c
 
-  for (let delta = 1; ; delta++) {
-    const next = middle - delta
+  const d = time * time - 4 * record
 
-    if (next * (time - next) <= record) {
-      if (time % 2 === 0) {
-        return delta * 2 - 1
-      }
-      return delta * 2
-    }
-  }
+  const x1 = (-time + Math.sqrt(d)) / -2
+  const x2 = (-time - Math.sqrt(d)) / -2
+
+  return Math.ceil(x2) - Math.floor(x1) - 1
 }
 
 export function totalAmount(data: Data): number {
