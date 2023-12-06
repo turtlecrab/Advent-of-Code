@@ -60,31 +60,172 @@ export function seedRangesFromRawData(seedsData: number[]): Range[] {
   }, [])
 }
 
-export function reverseMaps(maps: Map[]): Map[] {
-  return maps.map(map => ({
-    source: map.destination,
-    destination: map.source,
-    range: map.range,
-  }))
+type DiffMap = {
+  from: number
+  to: number
+  diff: number
 }
 
-export function isInRange(num: number, range: Range): boolean {
-  return num >= range[0] && num < range[0] + range[1]
-}
+export function mergeDiff(
+  cur: DiffMap,
+  map: DiffMap
+): {
+  isIntersecting: boolean
+  processed?: DiffMap[]
+  remainder?: DiffMap[]
+} {
+  // no intersection
+  if (map.from >= cur.to + cur.diff || map.to <= cur.from + cur.diff) {
+    return { isIntersecting: false }
+  }
 
-// bruteforce version ~43sec TODO
-export function getMinLocationOfRanges(seeds: Range[], maps: Map[][]) {
-  const reversedMaps = [...maps].reverse().map(maps => reverseMaps(maps))
-
-  for (let location = 0; ; location++) {
-    const seed = getLocation(location, reversedMaps)
-
-    for (let range of seeds) {
-      if (isInRange(seed, range)) {
-        return location
-      }
+  // mapping covers cur
+  if (map.from <= cur.from + cur.diff && map.to >= cur.to + cur.diff) {
+    return {
+      isIntersecting: true,
+      processed: [
+        {
+          ...cur,
+          diff: cur.diff + map.diff,
+        },
+      ],
     }
   }
+
+  // left intersection
+  if (map.from <= cur.from + cur.diff && map.to < cur.to + cur.diff) {
+    return {
+      isIntersecting: true,
+      processed: [
+        {
+          from: cur.from,
+          to: map.to - cur.diff,
+          diff: cur.diff + map.diff,
+        },
+      ],
+      remainder: [
+        {
+          from: map.to - cur.diff,
+          to: cur.to,
+          diff: cur.diff,
+        },
+      ],
+    }
+  }
+  // right intersection
+  if (map.from > cur.from + cur.diff && map.to >= cur.to + cur.diff) {
+    return {
+      isIntersecting: true,
+      remainder: [
+        {
+          from: cur.from,
+          to: map.from - cur.diff,
+          diff: cur.diff,
+        },
+      ],
+      processed: [
+        {
+          from: map.from - cur.diff,
+          to: cur.to,
+          diff: cur.diff + map.diff,
+        },
+      ],
+    }
+  }
+
+  // mapping inside cur
+  if (map.from > cur.from + cur.diff && map.to < cur.to + cur.diff) {
+    return {
+      isIntersecting: true,
+      processed: [
+        {
+          from: map.from - cur.diff,
+          to: map.to - cur.diff,
+          diff: cur.diff + map.diff,
+        },
+      ],
+      remainder: [
+        {
+          from: cur.from,
+          to: map.from - cur.diff,
+          diff: cur.diff,
+        },
+        {
+          from: map.to - cur.diff,
+          to: cur.to,
+          diff: cur.diff,
+        },
+      ],
+    }
+  }
+
+  throw new Error("shouldn't go here")
+}
+
+export function rangeToDiff(range: Range): DiffMap {
+  return {
+    from: range[0],
+    to: range[0] + range[1],
+    diff: 0,
+  }
+}
+
+export function mapToDiff(map: Map): DiffMap {
+  return {
+    from: map.source,
+    to: map.source + map.range,
+    diff: map.destination - map.source,
+  }
+}
+
+export function merge(diffs: DiffMap[], maps: DiffMap[]): DiffMap[] {
+  const next: DiffMap[] = []
+  const current = [...diffs]
+
+  while (current.length) {
+    const diff = current.pop()
+    let didIntersect = false
+
+    for (let map of maps) {
+      const { isIntersecting, processed, remainder } = mergeDiff(diff, map)
+
+      if (isIntersecting) {
+        next.push(...processed)
+
+        if (remainder) {
+          current.push(...remainder)
+        }
+
+        didIntersect = true
+        break
+      }
+    }
+    if (!didIntersect) next.push(diff)
+  }
+
+  return next
+}
+
+export function getFinalRanges(seeds: Range[], mapsList: Map[][]) {
+  let curDiffs: DiffMap[] = seeds.map(rangeToDiff)
+  const diffMapsList = mapsList.map(maps => maps.map(mapToDiff))
+
+  for (let diffMaps of diffMapsList) {
+    curDiffs = merge(curDiffs, diffMaps)
+  }
+
+  return curDiffs
+}
+
+export function getMinLocationOfRanges(
+  seeds: Range[],
+  mapsList: Map[][]
+): number {
+  const diffs = getFinalRanges(seeds, mapsList)
+
+  diffs.sort((a, b) => a.from + a.diff - (b.from + b.diff))
+
+  return diffs[0].from + diffs[0].diff
 }
 
 const { seeds, maps } = parseAll(input)
