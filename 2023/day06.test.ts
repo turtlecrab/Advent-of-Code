@@ -1,4 +1,4 @@
-import { totalAmount, getAmount, parseData } from './day06'
+import { totalAmount, getAmount, parseData, parseData2 } from './day06'
 
 const testInput = `Time:      7  15   30
 Distance:  9  40  200`
@@ -25,5 +25,11 @@ describe('getAmount', () => {
 describe('totalAmount', () => {
   it('passes the test case', () => {
     expect(totalAmount(parseData(testInput))).toBe(288)
+  })
+})
+
+describe('totalAmount part2', () => {
+  it('passes the test case', () => {
+    expect(getAmount(...parseData2(testInput))).toBe(71503)
   })
 })

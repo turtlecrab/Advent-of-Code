@@ -12,6 +12,13 @@ export function parseData(str: string) {
     .map(line => line.split(':')[1].trim().split(/\s+/).map(Number)) as Data
 }
 
+export function parseData2(str: string) {
+  return str
+    .split('\n')
+    .map(line => line.split(':')[1].replace(/\s+/g, ''))
+    .map(Number) as [number, number]
+}
+
 export function getAmount(time: number, record: number): number {
   const middle = Math.floor(time / 2)
 
@@ -37,3 +44,5 @@ export function totalAmount(data: Data): number {
 }
 
 console.log(totalAmount(parseData(input)))
+
+console.log(getAmount(...parseData2(input)))
