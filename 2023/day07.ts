@@ -49,11 +49,11 @@ export function parseHands(str: string): Hand[] {
     .map(([hand, bid]) => ({
       hand,
       bid: Number(bid),
-      parsed: parseType(hand),
+      parsed: parseHand(hand),
     }))
 }
 
-export function parseType(hand: string): ParsedHand {
+export function parseHand(hand: string): ParsedHand {
   return hand.split('').reduce((acc, char) => {
     if (char in acc) {
       acc[char] += 1
@@ -64,8 +64,22 @@ export function parseType(hand: string): ParsedHand {
   }, {})
 }
 
-export function getType(hand: ParsedHand): HandType {
+export function getType(hand: ParsedHand, joker: boolean): HandType {
   const sorted = Object.values(hand).sort((a, b) => b - a)
+
+  if (joker && 'J' in hand) {
+    const jokers = hand['J']
+
+    if (sorted[0] === 5) return HandType.Five
+    if (sorted[0] === 4) return HandType.Five
+    if (sorted[0] === 3 && sorted[1] === 2) return HandType.Five
+    if (sorted[0] === 3) return HandType.Four
+    if (sorted[0] === 2 && sorted[1] === 2 && jokers === 2) return HandType.Four
+    if (sorted[0] === 2 && sorted[1] === 2 && jokers === 1) return HandType.Full
+    if (sorted[0] === 2) return HandType.Set
+
+    return HandType.OnePair
+  }
 
   if (sorted[0] === 5) return HandType.Five
   if (sorted[0] === 4) return HandType.Four
@@ -77,14 +91,21 @@ export function getType(hand: ParsedHand): HandType {
   return HandType.HiCard
 }
 
-export function totalWinnings(hands: Hand[]): number {
+export function getStrength(char: string, joker: boolean): number {
+  if (!joker) return strength[char]
+
+  return char === 'J' ? 0 : strength[char]
+}
+
+export function totalWinnings(hands: Hand[], joker = false): number {
   hands.sort((a, b) => {
-    const byType = getType(a.parsed) - getType(b.parsed)
+    const byType = getType(a.parsed, joker) - getType(b.parsed, joker)
 
     if (byType !== 0) return byType
 
     for (let i = 0; i < a.hand.length; i++) {
-      const byCard = strength[a.hand[i]] - strength[b.hand[i]]
+      const byCard =
+        getStrength(a.hand[i], joker) - getStrength(b.hand[i], joker)
 
       if (byCard !== 0) return byCard
     }
@@ -94,3 +115,5 @@ export function totalWinnings(hands: Hand[]): number {
 }
 
 console.log(totalWinnings(parseHands(input)))
+
+console.log(totalWinnings(parseHands(input), true))

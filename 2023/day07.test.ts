@@ -10,4 +10,7 @@ describe('totalWinnings', () => {
   it('calculates winnings', () => {
     expect(totalWinnings(parseHands(testInput))).toBe(6440)
   })
+  it('calculates with joker', () => {
+    expect(totalWinnings(parseHands(testInput), true)).toBe(5905)
+  })
 })
