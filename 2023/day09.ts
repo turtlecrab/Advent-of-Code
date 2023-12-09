@@ -25,11 +25,17 @@ export function predict(str: string): number {
   return seq[0].at(-1)
 }
 
-export function getExtrapolatedSum(input: string): number {
+export function predictBackwards(str: string): number {
+  return predict(str.split(' ').reverse().join(' '))
+}
+
+export function getExtrapolatedSum(input: string, backwards = false): number {
   return input
     .split('\n')
-    .map(predict)
+    .map(backwards ? predictBackwards : predict)
     .reduce((a, b) => a + b)
 }
 
 console.log(getExtrapolatedSum(input))
+
+console.log(getExtrapolatedSum(input, true))
