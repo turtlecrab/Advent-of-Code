@@ -92,7 +92,7 @@ function anotherEnd(tile: Tile, prev: Dir): Dir {
   throw new Error("shouldn't go here")
 }
 
-export function parse(input: string): Map {
+export function parseMap(input: string): Map {
   return input.split('\n').map(line =>
     line.split('').map(char => {
       if (!Object.values(Tile).includes(char as Tile)) {
@@ -148,6 +148,7 @@ type Path = {
   pos: Position
   prev: Dir
   ended?: boolean
+  via?: Path
 }
 
 export function checkPathsIntersection(paths: Path[]): [Path, Path] | null {
@@ -184,9 +185,12 @@ export function findLoop(map: Map): [Path, Path] {
       const dir = anotherEnd(tile, path.prev)
 
       if (checkConnection(map, path.pos, dir)) {
+        const oldPath: Path = { ...path }
+
         path.length += 1
         path.pos = sum(path.pos, dirToVec(dir))
         path.prev = opposite(dir)
+        path.via = oldPath
       } else {
         path.ended = true
       }
@@ -200,7 +204,198 @@ export function findLoop(map: Map): [Path, Path] {
 }
 
 export function getLongestLength(input: string): number {
-  return findLoop(parse(input))[0].length
+  return findLoop(parseMap(input))[0].length
 }
 
+function dirsToTile(...dirs: Dir[]): Tile {
+  if (dirs.includes(Dir.Up)) {
+    if (dirs.includes(Dir.Left)) {
+      return Tile.UpLeft
+    } else if (dirs.includes(Dir.Right)) {
+      return Tile.UpRight
+    } else if (dirs.includes(Dir.Down)) {
+      return Tile.UpDown
+    }
+  } else if (dirs.includes(Dir.Down)) {
+    if (dirs.includes(Dir.Left)) {
+      return Tile.DownLeft
+    }
+    if (dirs.includes(Dir.Right)) {
+      return Tile.DownRight
+    }
+  } else if (dirs.includes(Dir.Left) && dirs.includes(Dir.Right)) {
+    return Tile.LeftRight
+  }
+  throw new Error(`bad dirs: ${dirs}`)
+}
+
+export function getCleanMap(input: string): Map {
+  const map = parseMap(input)
+
+  let [first, second] = findLoop(map)
+
+  const newMap = map.map(row => row.map(_ => Tile.Ground))
+
+  while (first && second) {
+    newMap[first.pos.y][first.pos.x] = map[first.pos.y][first.pos.x]
+    newMap[second.pos.y][second.pos.x] = map[second.pos.y][second.pos.x]
+
+    first = first.via
+    second = second.via
+  }
+
+  // get starting pos tile
+  const start = getAnimalPosition(map)
+  const dirs = Dirs.filter(dir => checkConnection(map, start, dir))
+
+  newMap[start.y][start.x] = dirsToTile(...dirs)
+
+  return newMap
+}
+
+enum Pixel {
+  Empty,
+  Wall,
+  Water,
+}
+
+type PixelTile = [
+  [Pixel, Pixel, Pixel],
+  [Pixel, Pixel, Pixel],
+  [Pixel, Pixel, Pixel]
+]
+
+export function tileToPixels(tile: Tile): PixelTile {
+  switch (tile) {
+    case Tile.UpDown:
+      return [
+        [0, 1, 0],
+        [0, 1, 0],
+        [0, 1, 0],
+      ]
+    case Tile.UpLeft:
+      return [
+        [0, 1, 0],
+        [1, 1, 0],
+        [0, 0, 0],
+      ]
+    case Tile.UpRight:
+      return [
+        [0, 1, 0],
+        [0, 1, 1],
+        [0, 0, 0],
+      ]
+    case Tile.DownLeft:
+      return [
+        [0, 0, 0],
+        [1, 1, 0],
+        [0, 1, 0],
+      ]
+    case Tile.DownRight:
+      return [
+        [0, 0, 0],
+        [0, 1, 1],
+        [0, 1, 0],
+      ]
+    case Tile.LeftRight:
+      return [
+        [0, 0, 0],
+        [1, 1, 1],
+        [0, 0, 0],
+      ]
+    case Tile.Ground:
+      return [
+        [0, 0, 0],
+        [0, 0, 0],
+        [0, 0, 0],
+      ]
+    default:
+      throw new Error(`bad tile: ${tile}`)
+  }
+}
+
+export function getFloodFilledPixelMap(input: string) {
+  const map = getCleanMap(input)
+
+  // add empty border to the map
+  // for flood fill to work properly
+  map.forEach(row => {
+    row.unshift(Tile.Ground)
+    row.push(Tile.Ground)
+  })
+  const width = map[0].length
+
+  map.unshift(Array(width).fill(Tile.Ground))
+  map.push(Array(width).fill(Tile.Ground))
+
+  const height = map.length
+
+  // convert tiles to pixels
+  const pixelMap: Pixel[][] = Array(height * 3)
+    .fill(null)
+    .map(_ => [])
+
+  for (let y = 0; y < height; y++) {
+    for (let tile of map[y]) {
+      const pixels = tileToPixels(tile)
+      pixelMap[y * 3].push(...pixels[0])
+      pixelMap[y * 3 + 1].push(...pixels[1])
+      pixelMap[y * 3 + 2].push(...pixels[2])
+    }
+  }
+
+  // flood fill
+  const pixelHeight = pixelMap.length
+  const pixelWidth = pixelMap[0].length
+
+  const stack = [[0, 0]]
+
+  while (stack.length) {
+    const [y, x] = stack.pop()
+
+    // boundary checks
+    if (y < 0 || y >= pixelHeight || x < 0 || x > pixelWidth) continue
+
+    // already filled check
+    if (pixelMap[y][x] === Pixel.Water) continue
+
+    // wall check
+    if (pixelMap[y][x] === Pixel.Wall) continue
+
+    // fill
+    pixelMap[y][x] = Pixel.Water
+
+    // expand
+    stack.push([y - 1, x])
+    stack.push([y, x - 1])
+    stack.push([y, x + 1])
+    stack.push([y + 1, x])
+  }
+
+  return pixelMap
+}
+
+export function isEmptyPixels3x3(map: Pixel[][], y: number, x: number) {
+  for (let i = 0; i < 3; i++) {
+    for (let j = 0; j < 3; j++) {
+      if (map[y + i][x + j] !== Pixel.Empty) return false
+    }
+  }
+  return true
+}
+
+export function getEnclosedTilesCount(input: string) {
+  const map = getFloodFilledPixelMap(input)
+
+  let count = 0
+
+  for (let y = 0; y < map.length; y += 3) {
+    for (let x = 0; x < map[y].length; x += 3) {
+      if (isEmptyPixels3x3(map, y, x)) count += 1
+    }
+  }
+  return count
+}
 console.log(getLongestLength(input))
+
+console.log(getEnclosedTilesCount(input))
