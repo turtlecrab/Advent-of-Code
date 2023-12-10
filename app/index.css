@@ -1,0 +1,39 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+
+*,
+*::after,
+*::before {
+  box-sizing: border-box;
+}
+
+
+a {
+  color: #4c6ef5;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #4dabf7;
+}
+
+body {
+  padding: 0 8px;
+  display: flex;
+  flex-direction: column;
+  color: #c9c9c9 !important;
+  background-color: #242424 !important;
+  height: auto !important;
+}
+
+body > #root {
+  min-width: 320px;
+  border: 1px dashed #8885;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  margin: 20px auto;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}

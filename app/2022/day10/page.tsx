@@ -1,3 +1,5 @@
+'use client'
+
 import { Select } from '@mantine/core'
 import { useState } from 'react'
 import styled from 'styled-components'
@@ -10,10 +12,11 @@ function Loader10() {
   const input = selectedInput === 'input1' ? input1 : input2
 
   return (
-    <Container>
+    <>
       <TopSection>
         <h1>Day 10</h1>
         <Select
+          checkIconPosition="right"
           value={selectedInput}
           onChange={val => setSelectedInput(val!)}
           data={[
@@ -28,13 +31,13 @@ function Loader10() {
           Day 10: Cathode-Ray Tube
         </a>
       </p>
-    </Container>
+    </>
   )
 }
 
 const Container = styled.div`
-  display: flex;
-  flex-direction: column;
+  /* display: flex; */
+  /* flex-direction: column; */
 `
 
 const TopSection = styled.div`

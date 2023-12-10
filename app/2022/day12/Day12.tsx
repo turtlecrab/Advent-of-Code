@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 import { useMemo, useState } from 'react'
 
-import Controls from '../Controls'
+import Controls from '../../components/Controls'
 import Grid from './Grid'
 import { getShortestPath, parseGraph, parseStartEnd } from './solution12'
 // import { Select } from '@mantine/core'

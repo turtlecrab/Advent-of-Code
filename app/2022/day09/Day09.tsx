@@ -9,7 +9,7 @@ import {
   Position,
 } from './solution09'
 import Grid from './Grid'
-import Controls from '../Controls'
+import Controls from '../../components/Controls'
 
 // helper function for fragmenting the moves, not needed in the solution
 const fragMoves = (moves: Move[]): Move[] =>

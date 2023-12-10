@@ -1,3 +1,5 @@
+'use client'
+
 import { useState } from 'react'
 import styled from 'styled-components'
 import { Select } from '@mantine/core'
@@ -13,6 +15,7 @@ function Loader09() {
       <TopSection>
         <h1>Day 9</h1>
         <Select
+          checkIconPosition="right"
           value={selectedInput}
           onChange={val => setSelectedInput(val!)}
           data={[

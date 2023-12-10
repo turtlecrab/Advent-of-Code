@@ -44,9 +44,13 @@ function View({ show, voxels, center, enclosed }: Props) {
           <directionalLight
             color="white"
             position={[9, 20, -10]}
-            intensity={0.1}
+            intensity={0.4}
           />
-          <directionalLight color="#A5D8FF" position={[-9, 20, 10]} />
+          <directionalLight
+            color="#A5D8FF"
+            position={[-9, 20, 10]}
+            intensity={2}
+          />
 
           {sortedVoxels.slice(0, show).map(v => (
             <Voxel position={v} key={v.join()} wireframe={wireframe} />
@@ -99,7 +103,7 @@ const Voxel = memo(
         {props.enclosed ? (
           <meshStandardMaterial
             color={props.color}
-            emissive={'white'}
+            emissive="white"
             emissiveIntensity={0.02}
           />
         ) : props.wireframe ? (

@@ -1,4 +1,6 @@
-import { Button, Radio, Slider } from '@mantine/core'
+'use client'
+
+import { Button, Group, Radio, Slider } from '@mantine/core'
 import { useEffect, useState } from 'react'
 import styled from 'styled-components'
 
@@ -65,8 +67,10 @@ function Controls({ current, setCurrent, max, fastSpeed, slowSpeed }: Props) {
           value={slowMode ? 'slow' : 'fast'}
           onChange={handleModeChange}
         >
-          <Radio value="slow" label="Slow" />
-          <Radio value="fast" label="Fast" />
+          <Group>
+            <Radio value="slow" label="Slow" />
+            <Radio value="fast" label="Fast" />
+          </Group>
         </RadioGroup>
       </div>
       <Slider min={0} max={max} value={current} onChange={setAndStop} />
@@ -82,6 +86,7 @@ const Container = styled.div`
 
   & > div {
     display: flex;
+    align-items: center;
     gap: 10px;
   }
 `

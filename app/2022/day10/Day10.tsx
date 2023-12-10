@@ -2,7 +2,7 @@ import styled from 'styled-components'
 import { useMemo, useState } from 'react'
 
 import { getPixels, getVaules, parseAndFlat } from './solution10'
-import Controls from '../Controls'
+import Controls from '../../components/Controls'
 import Grid from './Grid'
 
 interface Props {

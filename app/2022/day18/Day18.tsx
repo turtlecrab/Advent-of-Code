@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 import { useMemo, useState } from 'react'
 
-import Controls from '../Controls'
+import Controls from '../../components/Controls'
 import View from './View'
 import { getBoundaries, getCounterForm, parseVoxels } from './solution18'
 
