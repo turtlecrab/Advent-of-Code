@@ -6,6 +6,10 @@ export default function Home() {
   return (
     <div style={{ fontSize: 24 }}>
       <Stack gap="0">
+        <Year>2023</Year>
+        <Days>
+          <Link href="/2023/day10">Day 10</Link>
+        </Days>
         <Year>2022</Year>
         <Days>
           <Link href="/2022/day09">Day 09</Link>
