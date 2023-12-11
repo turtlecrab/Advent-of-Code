@@ -17,6 +17,7 @@ function Loader12() {
         <Header>Day 18</Header>
         <Select
           checkIconPosition="right"
+          allowDeselect={false}
           value={String(selectedInput)}
           onChange={val => setSelectedInput(Number(val))}
           data={inputs.map((_, i) => ({

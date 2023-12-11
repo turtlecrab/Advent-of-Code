@@ -16,6 +16,7 @@ function Loader09() {
         <h1>Day 9</h1>
         <Select
           checkIconPosition="right"
+          allowDeselect={false}
           value={selectedInput}
           onChange={val => setSelectedInput(val!)}
           data={[
