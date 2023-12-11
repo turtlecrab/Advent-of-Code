@@ -248,7 +248,7 @@ export function getCleanMap(input: string): Map {
   return newMap
 }
 
-enum Pixel {
+export enum Pixel {
   Empty,
   Wall,
   Water,
@@ -330,14 +330,26 @@ export function getFloodFilledPixelMap(input: string) {
     .fill(null)
     .map(_ => [])
 
+  // for visuals
+  const origMap: Pixel[][] = Array(height * 3)
+    .fill(null)
+    .map(_ => [])
+
   for (let y = 0; y < height; y++) {
     for (let tile of map[y]) {
       const pixels = tileToPixels(tile)
       pixelMap[y * 3].push(...pixels[0])
       pixelMap[y * 3 + 1].push(...pixels[1])
       pixelMap[y * 3 + 2].push(...pixels[2])
+
+      // for visuals
+      origMap[y * 3].push(...pixels[0])
+      origMap[y * 3 + 1].push(...pixels[1])
+      origMap[y * 3 + 2].push(...pixels[2])
     }
   }
+
+  const waterArr: string[] = []
 
   // flood fill
   const pixelHeight = pixelMap.length
@@ -359,6 +371,8 @@ export function getFloodFilledPixelMap(input: string) {
 
     // fill
     pixelMap[y][x] = Pixel.Water
+    // for visuals
+    waterArr.push(`${y}:${x}`)
 
     // expand
     stack.push([y - 1, x])
@@ -367,7 +381,7 @@ export function getFloodFilledPixelMap(input: string) {
     stack.push([y + 1, x])
   }
 
-  return pixelMap
+  return { pixelMap, origMap, waterArr }
 }
 
 export function isEmptyPixels3x3(map: Pixel[][], y: number, x: number) {
@@ -379,17 +393,17 @@ export function isEmptyPixels3x3(map: Pixel[][], y: number, x: number) {
   return true
 }
 
-export function getEnclosedTilesCount(input: string) {
-  const map = getFloodFilledPixelMap(input)
-
-  let count = 0
+export function getEnclosedTiles(map: Pixel[][]) {
+  const enclosed: string[] = []
 
   for (let y = 0; y < map.length; y += 3) {
     for (let x = 0; x < map[y].length; x += 3) {
-      if (isEmptyPixels3x3(map, y, x)) count += 1
+      if (isEmptyPixels3x3(map, y, x)) {
+        enclosed.push(`${y}:${x}`)
+      }
     }
   }
-  return count
+  return enclosed
 }
 
 export function asciiArt(char: string): string {
