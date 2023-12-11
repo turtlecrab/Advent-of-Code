@@ -68,14 +68,6 @@ const Cell = memo(styled.div<{
   $color: string
 }>`
   background-color: ${p => p.$color};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 4px;
-  line-height: 1;
-  font-weight: bold;
-  padding: 0;
-  font-family: 'Courier New', Courier, monospace;
   width: 10px;
   aspect-ratio: 1;
 `)
@@ -92,8 +84,6 @@ const Tile = styled.div<{ $enclosed: boolean }>`
   ${p => p.$enclosed && 'background-color: var(--mantine-color-lime-4);'}
   outline: 1px var(--mantine-color-gray-8);
   outline-style: solid;
-  padding: 0;
-  font-family: 'Courier New', Courier, monospace;
   width: 30px;
   aspect-ratio: 1;
 `

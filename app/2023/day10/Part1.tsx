@@ -52,5 +52,3 @@ export default function Day10Part1({ input }: Props) {
     </>
   )
 }
-
-const Container = styled.div``
