@@ -1,10 +1,4 @@
-import {
-  expand,
-  findStars,
-  getLength,
-  getSumOfLengths,
-  parseMap,
-} from './day11'
+import { getSumOfStarLengths } from './day11'
 
 const testInput = `...#......
 .......#..
@@ -17,37 +11,10 @@ const testInput = `...#......
 .......#..
 #...#.....`
 
-const testExpanded = `....#........
-.........#...
-#............
-.............
-.............
-........#....
-.#...........
-............#
-.............
-.............
-.........#...
-#....#.......`
-
-describe('expand', () => {
-  it('expands map in place', () => {
-    expect(expand(parseMap(testInput))).toEqual(parseMap(testExpanded))
-  })
-})
-
-describe('getLength', () => {
-  it('calculates length between stars', () => {
-    const stars = findStars(expand(parseMap(testInput)))
-    expect(getLength(stars[4], stars[8])).toBe(9)
-    expect(getLength(stars[0], stars[6])).toBe(15)
-    expect(getLength(stars[2], stars[5])).toBe(17)
-    expect(getLength(stars[7], stars[8])).toBe(5)
-  })
-})
-
 describe('getSumOfLengths', () => {
   it('gets it', () => {
-    expect(getSumOfLengths(findStars(expand(parseMap(testInput))))).toBe(374)
+    expect(getSumOfStarLengths(testInput)).toBe(374)
+    expect(getSumOfStarLengths(testInput, 10)).toBe(1030)
+    expect(getSumOfStarLengths(testInput, 100)).toBe(8410)
   })
 })
