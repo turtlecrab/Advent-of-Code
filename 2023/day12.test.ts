@@ -1,9 +1,10 @@
 import {
   getCombinationsAmount,
-  getPossibleArrangements,
+  getPossibleArrangementsAmount,
   getSumOfCombinations,
   isMatching,
   parseSprings,
+  unfoldSprings,
 } from './day12'
 
 const testInput = `???.### 1,1,3
@@ -22,45 +23,6 @@ describe('parseSprings', () => {
   })
 })
 
-describe('getPossibleArrangements', () => {
-  const springs = parseSprings(testInput)
-
-  it('works for 1 possible arrangements', () => {
-    const { groups, pattern } = springs[0]
-    expect(getPossibleArrangements(groups, pattern.length)).toEqual(['#.#.###'])
-    expect(getPossibleArrangements([1], 1)).toEqual(['#'])
-    expect(getPossibleArrangements([2], 2)).toEqual(['##'])
-    expect(getPossibleArrangements([1, 1], 3)).toEqual(['#.#'])
-  })
-  it('works for 1 group', () => {
-    expect(getPossibleArrangements([1], 2)).toEqual(['#.', '.#'])
-    expect(getPossibleArrangements([1], 3)).toEqual(['#..', '.#.', '..#'])
-    expect(getPossibleArrangements([2], 3)).toEqual(['##.', '.##'])
-    expect(getPossibleArrangements([2], 4)).toEqual(['##..', '.##.', '..##'])
-  })
-  it('works for 2 groups', () => {
-    expect(getPossibleArrangements([1, 1], 4)).toEqual(['#.#.', '#..#', '.#.#'])
-    expect(getPossibleArrangements([1, 1], 5)).toEqual([
-      '#.#..',
-      '#..#.',
-      '#...#',
-      '.#.#.',
-      '.#..#',
-      '..#.#',
-    ])
-    expect(getPossibleArrangements([1, 6], 16)).toBeTruthy()
-  })
-  it('works for 3 groups', () => {
-    expect(getPossibleArrangements([1, 1, 1], 5)).toEqual(['#.#.#'])
-    expect(getPossibleArrangements([1, 2, 1], 6)).toEqual(['#.##.#'])
-    expect(getPossibleArrangements([2, 1, 6], 16)).toBeTruthy()
-  })
-  it('works for 4 groups', () => {
-    expect(getPossibleArrangements([1, 3, 1, 6], 16)).toBeTruthy()
-    expect(getPossibleArrangements([1, 2, 1], 6)).toEqual(['#.##.#'])
-  })
-})
-
 describe('isMatching', () => {
   it('matches', () => {
     expect(isMatching('#.#.###', '???.###')).toBe(true)
@@ -68,6 +30,18 @@ describe('isMatching', () => {
     expect(isMatching('.....##', '???.###')).toBe(false)
     expect(isMatching('...####', '???.###')).toBe(false)
     expect(isMatching('.....##', '???.?##')).toBe(true)
+  })
+})
+
+describe('getPossibleArrangementsAmount', () => {
+  it('does stuff', () => {
+    expect(getPossibleArrangementsAmount([1], '?')).toBe(1)
+    expect(getPossibleArrangementsAmount([1], '??')).toBe(2)
+    expect(getPossibleArrangementsAmount([1], '?.')).toBe(1)
+    expect(getPossibleArrangementsAmount([1], '??#')).toBe(1)
+    expect(getPossibleArrangementsAmount([1, 1], '??#')).toBe(1)
+    expect(getPossibleArrangementsAmount([1, 1], '??#?')).toBe(1)
+    expect(getPossibleArrangementsAmount([1, 1], '??#?')).toBe(1)
   })
 })
 
@@ -83,8 +57,34 @@ describe('getCombinationsAmount', () => {
   })
 })
 
+describe('unfoldSprings', () => {
+  it('unfolds', () => {
+    const unfolded = unfoldSprings(parseSprings(testInput))
+
+    expect(unfolded[0].groups).toEqual([
+      1, 1, 3, 1, 1, 3, 1, 1, 3, 1, 1, 3, 1, 1, 3,
+    ])
+    expect(unfolded[0].pattern).toBe('???.###????.###????.###????.###????.###')
+  })
+})
+
+describe('getCombinationsAmount w/ unfoldSprings', () => {
+  it('gets em', () => {
+    const springs = unfoldSprings(parseSprings(testInput))
+    expect(getCombinationsAmount(springs[0])).toBe(1)
+    expect(getCombinationsAmount(springs[1])).toBe(16384)
+    expect(getCombinationsAmount(springs[2])).toBe(1)
+    expect(getCombinationsAmount(springs[3])).toBe(16)
+    expect(getCombinationsAmount(springs[4])).toBe(2500)
+    expect(getCombinationsAmount(springs[5])).toBe(506250)
+  })
+})
+
 describe('getSumOfCombinations', () => {
   it('gets it', () => {
     expect(getSumOfCombinations(parseSprings(testInput))).toBe(21)
+    expect(getSumOfCombinations(unfoldSprings(parseSprings(testInput)))).toBe(
+      525152
+    )
   })
 })

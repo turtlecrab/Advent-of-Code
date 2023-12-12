@@ -19,21 +19,20 @@ export function parseSprings(input: string): Spring[] {
   })
 }
 
-export function getPossibleArrangements(
+const cache = new Map<string, number>()
+
+export function getPossibleArrangementsAmount(
   groups: number[],
-  space: number
-): string[] {
-  const minSpace = groups.reduce((a, b) => a + b) + groups.length - 1
+  pattern: string
+): number {
+  const cacheKey = `${groups.join(',')};${pattern}`
 
-  if (space < minSpace) throw new Error('space < minSpace')
-  if (groups.length === 0) throw new Error('empty groups')
+  if (cache.has(cacheKey)) return cache.get(cacheKey)
 
-  if (space === minSpace) {
-    return [groups.map(n => '#'.repeat(n)).join('.')]
-  }
+  const space = pattern.length
 
   if (groups.length === 1) {
-    return Array(space - groups[0] + 1)
+    const result = Array(space - groups[0] + 1)
       .fill(null)
       .map(
         (_, i) =>
@@ -41,19 +40,29 @@ export function getPossibleArrangements(
           '#'.repeat(groups[0]) +
           '.'.repeat(space - i - groups[0])
       )
+      .filter(str => isMatching(str, pattern)).length
+
+    cache.set(cacheKey, result)
+    return result
   }
 
   const [first, ...rest] = groups
   const restMinSpace = rest.reduce((a, b) => a + b) + rest.length - 1
   const firstPossiblePositions = space - restMinSpace - first
 
-  return Array(firstPossiblePositions)
-    .fill(null)
-    .flatMap((_, i) => {
-      const curStr = '.'.repeat(i) + '#'.repeat(first) + '.'
-      const restSpace = space - curStr.length
-      return getPossibleArrangements(rest, restSpace).map(s => curStr + s)
-    })
+  let result = 0
+
+  for (let i = 0; i < firstPossiblePositions; i++) {
+    const curStr = '.'.repeat(i) + '#'.repeat(first) + '.'
+
+    if (!isMatching(curStr, pattern.slice(0, curStr.length))) {
+      continue
+    }
+    result += getPossibleArrangementsAmount(rest, pattern.slice(curStr.length))
+  }
+
+  cache.set(cacheKey, result)
+  return result
 }
 
 export function isMatching(str: string, pattern: string): boolean {
@@ -67,15 +76,22 @@ export function isMatching(str: string, pattern: string): boolean {
 }
 
 export function getCombinationsAmount(spring: Spring): number {
-  const arrangements = getPossibleArrangements(
-    spring.groups,
-    spring.pattern.length
-  )
-  return arrangements.filter(str => isMatching(str, spring.pattern)).length
+  return getPossibleArrangementsAmount(spring.groups, spring.pattern)
 }
 
 export function getSumOfCombinations(springs: Spring[]): number {
   return springs.map(getCombinationsAmount).reduce((a, b) => a + b)
 }
 
+export function unfoldSprings(springs: Spring[]): Spring[] {
+  return springs.map(spring => ({
+    groups: Array(5)
+      .fill(null)
+      .flatMap(() => [...spring.groups]),
+    pattern: Array(5).fill(spring.pattern).join('?'),
+  }))
+}
+
 console.log(getSumOfCombinations(parseSprings(input)))
+
+console.log(getSumOfCombinations(unfoldSprings(parseSprings(input))))
