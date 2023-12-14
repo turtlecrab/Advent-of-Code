@@ -34,4 +34,69 @@ export function getTotalLoad(map: string[][]): number {
     .reduce((a, b) => a + b)
 }
 
+export function turn(map: string[][]): string[][] {
+  return map.reduce(
+    (acc, row) => {
+      for (let i = 0; i < row.length; i++) {
+        acc[i].unshift(row[i])
+      }
+      return acc
+    },
+    Array(map[0].length)
+      .fill(null)
+      .map(() => [])
+  )
+}
+
+export function cycle(map: string[][]): string[][] {
+  // roll north
+  simulate(map)
+
+  // roll west
+  map = turn(map)
+  simulate(map)
+
+  // roll south
+  map = turn(map)
+  simulate(map)
+
+  // roll east
+  map = turn(map)
+  simulate(map)
+
+  map = turn(map)
+  return map
+}
+
+export function getTotalLoadAfterCycles(
+  map: string[][],
+  n = 1_000_000_000
+): number {
+  const data = new Map<string, number>()
+  const key = (map: string[][]) => map.map(r => r.join('')).join('\n')
+
+  let loopStart: number
+  let loopEnd: number
+
+  for (let i = 0; ; i++) {
+    if (data.has(key(map))) {
+      loopStart = data.get(key(map))
+      loopEnd = i
+      break
+    }
+    data.set(key(map), i)
+    map = cycle(map)
+  }
+
+  const loopedPos = ((n - loopStart) % (loopEnd - loopStart)) + loopStart
+
+  for (let [key, cycleN] of data.entries()) {
+    if (cycleN === loopedPos) {
+      return getTotalLoad(parseMap(key))
+    }
+  }
+}
+
 console.log(getTotalLoad(simulate(parseMap(input))))
+
+console.log(getTotalLoadAfterCycles(parseMap(input)))
