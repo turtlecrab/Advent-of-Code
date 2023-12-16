@@ -12,7 +12,7 @@ enum Tile {
   SplitterH = '-',
 }
 
-enum Dir {
+export enum Dir {
   Up,
   Down,
   Left,
@@ -101,13 +101,17 @@ export function getDirsAfterSplitter(
   }
 }
 
-export function simulate(map: Layout): Layout {
-  const beams: Beam[] = [
-    {
-      pos: { y: 0, x: -1 },
-      dir: Dir.Right,
-    },
-  ]
+export function simulate(
+  map: Layout,
+  startBeam: Beam = {
+    pos: { y: 0, x: -1 },
+    dir: Dir.Right,
+  }
+): Layout {
+  map.forEach(row => row.forEach(cell => cell.beamDirs.clear()))
+
+  const beams: Beam[] = [startBeam]
+
   while (beams.some(b => !b.ended)) {
     const origLength = beams.length
 
@@ -159,4 +163,25 @@ export function getEnergizedTilesCount(map: Layout): number {
     .filter(Boolean).length
 }
 
+export function getMaxTilesCount(map: Layout): number {
+  const height = map.length
+  const width = map[0].length
+
+  const startBeams: Beam[] = []
+
+  for (let i = 0; i < width; i++) {
+    startBeams.push({ pos: { y: -1, x: i }, dir: Dir.Down })
+    startBeams.push({ pos: { y: height, x: i }, dir: Dir.Up })
+  }
+  for (let i = 0; i < height; i++) {
+    startBeams.push({ pos: { y: i, x: -1 }, dir: Dir.Right })
+    startBeams.push({ pos: { y: i, x: width }, dir: Dir.Left })
+  }
+  return Math.max(
+    ...startBeams.map(beam => getEnergizedTilesCount(simulate(map, beam)))
+  )
+}
+
 console.log(getEnergizedTilesCount(simulate(parseMap(input))))
+
+console.log(getMaxTilesCount(parseMap(input)))
