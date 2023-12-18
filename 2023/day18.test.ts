@@ -2,8 +2,10 @@ import {
   dig,
   expandGrid,
   getTrenchVolume,
+  getTrenchVolume2,
   gridFromTrench,
   parseCommands,
+  parseCommands2,
 } from './day18'
 
 const testInput = `
@@ -72,7 +74,24 @@ describe('expandGrid', () => {
 })
 
 describe('getTrenchVolume', () => {
-  it('does stuff', () => {
+  it('gets volume for part 1', () => {
     expect(getTrenchVolume(dig(parseCommands(testInput)))).toBe(62)
+  })
+})
+
+describe('parseCommands2', () => {
+  it('parses for part 2', () => {
+    const commands = parseCommands2(testInput)
+    expect(commands[0]).toEqual({ dir: 'R', len: 461937 })
+    expect(commands.at(-1)).toEqual({ dir: 'U', len: 500254 })
+  })
+})
+
+describe('getTrenchVolume2', () => {
+  it('gets volume for part 1', () => {
+    expect(getTrenchVolume2(parseCommands(testInput))).toBe(62)
+  })
+  it('gets volume for part 2', () => {
+    expect(getTrenchVolume2(parseCommands2(testInput))).toBe(952408144115)
   })
 })
