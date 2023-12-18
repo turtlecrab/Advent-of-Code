@@ -68,6 +68,13 @@ const testInput6 = `
 99131
 99111`.trim()
 
+const testInput7 = `
+111111111111
+999999999991
+999999999991
+999999999991
+999999999991`.trim()
+
 function print(state: any, map: number[][]): string {
   const path: any = map.map(row => [...row])
   while (state) {
@@ -78,7 +85,7 @@ function print(state: any, map: number[][]): string {
 }
 
 describe('play', () => {
-  it('sworks for test input', () => {
+  it('works for test input', () => {
     expect(play(parseMap(testInput)).heat).toBe(102)
   })
   it('test case from reddit #1', () => {
@@ -86,5 +93,9 @@ describe('play', () => {
   })
   it('test case from reddit #2', () => {
     expect(play(parseMap(testInput6)).heat).toBe(9)
+  })
+  it('works for ultra crucible', () => {
+    expect(play(parseMap(testInput), 4, 10).heat).toBe(94)
+    expect(play(parseMap(testInput7), 4, 10).heat).toBe(71)
   })
 })

@@ -87,7 +87,12 @@ export function reverseBFS(map: number[][]): number[][] {
   return result
 }
 
-export function play(map: number[][]) {
+/**
+ * part 1 - ~140s
+ * part 2 - ~440s
+ * TODO
+ */
+export function play(map: number[][], minStraight = 1, maxStraight = 3) {
   const end = { x: map[0].length - 1, y: map.length - 1 }
 
   const states: State[] = [
@@ -128,15 +133,22 @@ export function play(map: number[][]) {
     }, 0)
     const [state] = states.splice(minIndex, 1)
 
-    if (state.pos.x === end.x && state.pos.y === end.y) {
+    if (
+      state.pos.x === end.x &&
+      state.pos.y === end.y &&
+      state.straight >= minStraight
+    ) {
       return state
     }
 
     visited.set(key(state.pos, state.dir, state.straight), state.heat)
 
-    const nextDirs: Dir[] = [(state.dir + 1) % 4, (state.dir + 3) % 4]
+    const nextDirs: Dir[] = []
 
-    if (state.straight < 3) nextDirs.push(state.dir)
+    if (state.straight >= minStraight)
+      nextDirs.push((state.dir + 1) % 4, (state.dir + 3) % 4)
+
+    if (state.straight < maxStraight) nextDirs.push(state.dir)
 
     for (let nextDir of nextDirs) {
       const nextPos = step(state.pos, nextDir, map)
@@ -163,3 +175,5 @@ export function play(map: number[][]) {
 }
 
 console.log(play(parseMap(input)).heat)
+
+console.log(play(parseMap(input), 4, 10).heat)
