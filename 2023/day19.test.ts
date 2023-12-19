@@ -1,4 +1,13 @@
-import { parseAll, process, filterParts, getSum } from './day19'
+import {
+  parseAll,
+  process,
+  filterParts,
+  getSum,
+  processRange,
+  Range,
+  getAcceptedRanges,
+  getCombinations,
+} from './day19'
 
 const testInput = `
 px{a<2006:qkq,m>2090:A,rfg}
@@ -52,5 +61,39 @@ describe('getSum', () => {
   it('sums', () => {
     const parts = filterParts(testInput)
     expect(getSum(parts)).toBe(19114)
+  })
+})
+
+describe('processRange', () => {
+  it('does stuff', () => {
+    const { workflows } = parseAll(testInput)
+    const rule = 'px'
+
+    const range: Range = {
+      x: [1, 4001],
+      m: [1, 4001],
+      a: [1, 4001],
+      s: [1, 4001],
+      next: rule,
+    }
+
+    const next = processRange(range, workflows)
+    // console.log(workflows.get(rule))
+    // console.log(next)
+    expect(next.every(r => ['qkq', 'A', 'rfg'].includes(r.next))).toBe(true)
+  })
+})
+
+describe('getAcceptedRanges', () => {
+  it('gets it', () => {
+    const ranges = getAcceptedRanges(testInput)
+    expect(ranges.every(r => r.next === 'A')).toBe(true)
+  })
+})
+
+describe('getCombinations', () => {
+  it('does stuff', () => {
+    const ranges = getAcceptedRanges(testInput)
+    expect(getCombinations(ranges)).toBe(167409079868000)
   })
 })
