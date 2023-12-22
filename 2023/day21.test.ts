@@ -54,7 +54,12 @@ describe('play', () => {
 describe('getEvenVisitedCount', () => {
   it('does stuff', () => {
     const [grid, start] = parseMap(testInput)
-    const visited = play(grid, start, 6)
-    expect(getEvenVisitedCount(visited)).toBe(16)
+
+    expect(getEvenVisitedCount(play(grid, start, 6))).toBe(16)
+    expect(getEvenVisitedCount(play(grid, start, 10))).toBe(50)
+    expect(getEvenVisitedCount(play(grid, start, 50))).toBe(1594)
+    // expect(getEvenVisitedCount(play(grid, start, 100))).toBe(6536)
+    // expect(getEvenVisitedCount(play(grid, start, 1000))).toBe(668697)
+    // expect(getEvenVisitedCount(play(grid, start, 5000))).toBe(16733044)
   })
 })

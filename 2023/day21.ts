@@ -33,17 +33,25 @@ export function parseMap(input: string): [grid: Grid, start: Position] {
   return [grid, start]
 }
 
+export function getTileAt(pos: Position, grid: Grid): Tile {
+  const height = grid.length
+  const width = grid[0].length
+  let { y, x } = pos
+
+  if (y >= height) y = y % height
+  if (x >= width) x = x % width
+
+  if (y < 0) y = ((y % height) + height) % height
+  if (x < 0) x = ((x % width) + width) % width
+
+  return grid[y][x]
+}
+
 export function nextPos(pos: Step, dir: Position, grid: Grid): Position | null {
   const next = { y: pos.y + dir.y, x: pos.x + dir.x }
-  if (
-    next.y < 0 ||
-    next.y >= grid.length ||
-    pos.x < 0 ||
-    pos.x >= grid[0].length
-  ) {
-    return null
-  }
-  if (grid[next.y][next.x] === Tile.Rock) return null
+
+  if (getTileAt(next, grid) === Tile.Rock) return null
+
   return next
 }
 
@@ -82,4 +90,119 @@ export function getEvenVisitedCount(visited: Map<string, number>) {
   return [...visited.values()].filter(steps => steps % 2 === 0).length
 }
 
-console.log(getEvenVisitedCount(play(...parseMap(input))))
+export function calculateMagic(
+  grid: Grid,
+  start: Position,
+  magicSteps: number
+) {
+  const fullSize = grid.length
+  const halfishSize = (grid.length - 1) / 2
+
+  console.log('----------')
+
+  const innerDiamond = getEvenVisitedCount(play(grid, start, halfishSize))
+  console.log('innerDiamond:', innerDiamond)
+
+  const firstRingFilled = 92550
+  //  getEvenVisitedCount(
+  //   play(grid, start, halfishSize + 2 * fullSize)
+  // )
+  console.log('firstRingFilled:', firstRingFilled)
+
+  const secondRingFilled = 300330
+  //  getEvenVisitedCount(
+  //   play(grid, start, halfishSize + 4 * fullSize)
+  // )
+  console.log('secondRingFilled:', secondRingFilled)
+
+  const thirdRingFilled = 626998
+  //  getEvenVisitedCount(
+  //   play(grid, start, halfishSize + 6 * fullSize)
+  // )
+  console.log('thirdRingFilled:', thirdRingFilled)
+
+  const fourthRingFilled = 1072554
+  // getEvenVisitedCount(
+  //   play(grid, start, halfishSize + 8 * fullSize)
+  // )
+  console.log('fourthRingFilled:', fourthRingFilled)
+
+  const fifthRingFilled = 1636998
+  //  getEvenVisitedCount(
+  //   play(grid, start, halfishSize + 10 * fullSize)
+  // )
+  console.log('fifthRingFilled:', fifthRingFilled)
+
+  const firstRing = firstRingFilled - innerDiamond
+  const secondRing = secondRingFilled - firstRingFilled
+  const thirdRing = thirdRingFilled - secondRingFilled
+  const fourthRing = fourthRingFilled - thirdRingFilled
+  const fifthRing = fifthRingFilled - fourthRingFilled
+
+  console.log('----------')
+  console.log('firstRing:', firstRing)
+  console.log('----------')
+
+  console.log('firstRing - innerDiamond:', firstRing - innerDiamond)
+  console.log('secondRing - firstRing:', secondRing - firstRing)
+  console.log('thirdRing - secondRing:', thirdRing - secondRing)
+  console.log('fourthRing - thirdRing:', fourthRing - thirdRing)
+  console.log('fifthRing - fourthRing:', fifthRing - fourthRing)
+
+  const diffDoubleRing = secondRing - firstRing
+  const ringsAmount = (magicSteps - halfishSize) / fullSize
+
+  console.log('----------')
+
+  console.log('rings amount:', ringsAmount)
+
+  console.log('----------')
+
+  let n = ringsAmount / 2
+
+  console.log('ringsAmount / 2:', n)
+  console.log('----------')
+
+  console.log(
+    'ANSWER?:',
+    innerDiamond + firstRing * n + (diffDoubleRing * ((n - 1) * n)) / 2
+  )
+
+  n = 1
+  const nn1 =
+    innerDiamond + firstRing * n + (diffDoubleRing * ((n - 1) * n)) / 2
+  n = 2
+  const nn2 =
+    innerDiamond + firstRing * n + (diffDoubleRing * ((n - 1) * n)) / 2
+  n = 3
+  const nn3 =
+    innerDiamond + firstRing * n + (diffDoubleRing * ((n - 1) * n)) / 2
+  n = 4
+  const nn4 =
+    innerDiamond + firstRing * n + (diffDoubleRing * ((n - 1) * n)) / 2
+  n = 5
+  const nn5 =
+    innerDiamond + firstRing * n + (diffDoubleRing * ((n - 1) * n)) / 2
+
+  console.log(nn1)
+  console.log(nn2)
+  console.log(nn3)
+  console.log(nn4)
+  console.log(nn5)
+
+  // 613636831549858 too high
+  // 613636831546200 too high
+  // 608234666562600 not right
+  // 608234666566258
+  // 608193713358858
+
+  // 9007199254740991 - max
+}
+
+// console.log(getEvenVisitedCount(play(...parseMap(input))))
+
+const [grid, start] = parseMap(input)
+
+calculateMagic(grid, start, 26501365)
+
+// calculateMagic(grid, start, 65 + 131 * 10)
