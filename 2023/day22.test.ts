@@ -1,4 +1,9 @@
-import { fall, getBottomSurface, parseSortedBricks } from './day22'
+import {
+  fall,
+  getBottomSurface,
+  getSumOfFallingBricks,
+  parseSortedBricks,
+} from './day22'
 
 const testInput = `
 1,0,1~1,2,1
@@ -28,6 +33,17 @@ describe('getBottomSurface', () => {
 describe('fall', () => {
   it('gets amount of safe bricks', () => {
     const bricks = parseSortedBricks(testInput)
-    expect(fall(bricks)).toBe(5)
+    expect(fall(bricks).safeToRemoveAmount).toBe(5)
+  })
+})
+
+describe('getSumOfFallingBricks', () => {
+  it('gets it', () => {
+    const { supportedBy, supportsAbove, cantBeRemoved } = fall(
+      parseSortedBricks(testInput)
+    )
+    expect(
+      getSumOfFallingBricks(supportedBy, supportsAbove, cantBeRemoved)
+    ).toBe(7)
   })
 })

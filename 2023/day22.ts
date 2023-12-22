@@ -59,7 +59,9 @@ export function getPosBelow(pos: Position): Position {
 
 export function fall(bricks: Brick[]) {
   const landedBricks: Brick[] = []
-  const supports: Set<Brick>[] = []
+
+  const supportedBy = new Map<Brick, Set<Brick>>()
+  const supportsAbove = new Map<Brick, Set<Brick>>()
 
   const landedCubes = new Map<string, Brick>()
   const key = (pos: Position) => `${pos.x},${pos.y},${pos.z}`
@@ -80,7 +82,16 @@ export function fall(bricks: Brick[]) {
       }
       if (curSupports.size || z === 1) {
         landedBricks.push(cur)
-        supports.push(curSupports)
+        supportedBy.set(cur, curSupports)
+
+        for (let brick of curSupports) {
+          if (supportsAbove.has(brick)) {
+            supportsAbove.get(brick).add(cur)
+          } else {
+            supportsAbove.set(brick, new Set([cur]))
+          }
+        }
+
         for (let cube of getAllCubes(cur)) {
           landedCubes.set(key(cube), cur)
         }
@@ -92,12 +103,70 @@ export function fall(bricks: Brick[]) {
   }
   const cantBeRemoved = new Set<Brick>()
 
-  for (let curSupports of supports) {
+  for (let curSupports of supportedBy.values()) {
     if (curSupports.size === 1) {
       cantBeRemoved.add(curSupports.keys().next().value)
     }
   }
-  return landedBricks.length - cantBeRemoved.size
+
+  return {
+    supportedBy,
+    supportsAbove,
+    cantBeRemoved,
+    safeToRemoveAmount: landedBricks.length - cantBeRemoved.size,
+  }
 }
 
-console.log(fall(parseSortedBricks(input)))
+export function getSumOfFallingBricks(
+  supportedBy: Map<Brick, Set<Brick>>,
+  supportsAbove: Map<Brick, Set<Brick>>,
+  bricksToFall: Set<Brick>
+) {
+  const falls = [...bricksToFall].map(brick => {
+    let currents = [brick]
+
+    const fallen = new Set<Brick>([brick])
+
+    // TODO: rewrite w/ priority queue?
+    // this implementation works for the given input but
+    // may not work for any input.
+    // e.g. if some of the supporting bricks for 'above' are not
+    // in the fallen set yet (this probably can happen if a brick
+    // has two 'legs', one consisting of just 1 vertical brick,
+    // and another of several bricks).
+    // so processing lowest bricks first is probably
+    // needed
+    while (currents.length) {
+      const aboves = new Set<Brick>()
+
+      for (let cur of currents) {
+        if (supportsAbove.has(cur)) {
+          supportsAbove.get(cur).forEach(brick => aboves.add(brick))
+        }
+      }
+      const next: Brick[] = []
+
+      for (let above of aboves) {
+        const isFalling = [...supportedBy.get(above)].every(below =>
+          fallen.has(below)
+        )
+        if (isFalling) {
+          fallen.add(above)
+          next.push(above)
+        }
+      }
+      currents = next
+    }
+
+    return fallen.size - 1
+  })
+
+  return falls.reduce((a, b) => a + b)
+}
+
+console.log(fall(parseSortedBricks(input)).safeToRemoveAmount)
+
+const { supportedBy, supportsAbove, cantBeRemoved } = fall(
+  parseSortedBricks(input)
+)
+console.log(getSumOfFallingBricks(supportedBy, supportsAbove, cantBeRemoved))
