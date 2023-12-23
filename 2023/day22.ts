@@ -128,14 +128,6 @@ export function getSumOfFallingBricks(
     const fallen = new Set<Brick>([brick])
 
     // TODO: rewrite w/ priority queue?
-    // this implementation works for the given input but
-    // may not work for any input.
-    // e.g. if some of the supporting bricks for 'above' are not
-    // in the fallen set yet (this probably can happen if a brick
-    // has two 'legs', one consisting of just 1 vertical brick,
-    // and another of several bricks).
-    // so processing lowest bricks first is probably
-    // needed
     while (currents.length) {
       const aboves = new Set<Brick>()
 
