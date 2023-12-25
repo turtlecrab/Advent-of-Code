@@ -9,6 +9,7 @@ export default function Home() {
         <Year>2023</Year>
         <Days>
           <Link href="/2023/day10">Day 10</Link>
+          <Link href="/2023/day25">Day 25</Link>
         </Days>
         <Year>2022</Year>
         <Days>
