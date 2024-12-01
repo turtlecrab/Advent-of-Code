@@ -27,4 +27,12 @@ export function getSortedDifferenceSum(a: number[], b: number[]): number {
   )
 }
 
+export function getSimilarityScoreSum(a: number[], b: number[]): number {
+  return a
+    .map(aNum => aNum * b.filter(bNum => bNum === aNum).length)
+    .reduce((a, b) => a + b)
+}
+
 console.log(getSortedDifferenceSum(...parseLists(input)))
+
+console.log(getSimilarityScoreSum(...parseLists(input)))
