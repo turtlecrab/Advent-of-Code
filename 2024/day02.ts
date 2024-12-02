@@ -18,7 +18,6 @@ export function isSafeReport(report: number[]): boolean {
     if (delta === 0 || delta > 3) return false
     if (isCurrentIncreasing !== isStartIncreasing) return false
   }
-
   return true
 }
 
@@ -26,4 +25,18 @@ export function getSafeReportsCount(reports: number[][]): number {
   return reports.filter(isSafeReport).length
 }
 
+export function isTolerateSafe(report: number[]) {
+  if (isSafeReport(report)) return true
+
+  for (let i = 0; i < report.length; i++) {
+    if (isSafeReport(report.filter((_, j) => j !== i))) return true
+  }
+  return false
+}
+
+export function getTolerateSafeReportsCount(reports: number[][]): number {
+  return reports.filter(isTolerateSafe).length
+}
+
 console.log(getSafeReportsCount(parseReports(input)))
+console.log(getTolerateSafeReportsCount(parseReports(input)))
