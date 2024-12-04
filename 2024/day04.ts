@@ -69,4 +69,32 @@ export function getXmasCount(grid: Grid) {
   return count
 }
 
+export function getCrossedMasCount(grid: Grid): number {
+  let count = 0
+  const word = 'MAS'
+
+  for (let row = 0; row < grid.length - word.length + 1; row++) {
+    for (let col = 0; col < grid[0].length - word.length + 1; col++) {
+      let wordFromTopLeft = ''
+      let wordFromBottomLeft = ''
+
+      for (let i = 0; i < word.length; i++) {
+        wordFromTopLeft += grid[row + i][col + i]
+        wordFromBottomLeft += grid[row + word.length - i - 1][col + i]
+      }
+
+      const reversedWord = [...word].reverse().join('')
+
+      if (
+        (wordFromTopLeft === word || wordFromTopLeft === reversedWord) &&
+        (wordFromBottomLeft === word || wordFromBottomLeft === reversedWord)
+      ) {
+        count += 1
+      }
+    }
+  }
+  return count
+}
+
 console.log(getXmasCount(parseGrid(input)))
+console.log(getCrossedMasCount(parseGrid(input)))

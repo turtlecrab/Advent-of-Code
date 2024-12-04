@@ -1,6 +1,12 @@
-import { getWordCountInLine, getXmasCount, parseGrid } from './day04'
+import {
+  getCrossedMasCount,
+  getWordCountInLine,
+  getXmasCount,
+  parseGrid,
+} from './day04'
 
-const testInput = `MMMSXXMASM
+const testInput = `
+MMMSXXMASM
 MSAMXMSMSA
 AMXSXMAAMM
 MSAMASMSMX
@@ -9,7 +15,7 @@ XXAMMXXAMA
 SMSMSASXSS
 SAXAMASAAA
 MAMMMXMMMM
-MXMXAXMASX`
+MXMXAXMASX`.trim()
 
 describe('getWordCountInLine', () => {
   it('works', () => {
@@ -20,5 +26,11 @@ describe('getWordCountInLine', () => {
 describe('getXmasCount', () => {
   it('works for test input', () => {
     expect(getXmasCount(parseGrid(testInput))).toBe(18)
+  })
+})
+
+describe('getCrossedMasCount', () => {
+  it('works for test input', () => {
+    expect(getCrossedMasCount(parseGrid(testInput))).toBe(9)
   })
 })
