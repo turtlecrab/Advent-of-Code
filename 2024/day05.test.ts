@@ -1,4 +1,5 @@
 import {
+  getCorrectedIncorrectUpdatesMiddleNumberSum,
   getCorrectUpdatesMiddleNumberSum,
   isCorrectUpdate,
   parseAll,
@@ -43,5 +44,13 @@ describe('isCorrectUpdate', () => {
 describe('getCorrectUpdatesMiddleNumberSum', () => {
   it('works for test input', () => {
     expect(getCorrectUpdatesMiddleNumberSum(...parseAll(testInput))).toBe(143)
+  })
+})
+
+describe('getCorrectedIncorrectUpdatesMiddleNumberSum', () => {
+  it('works for test input', () => {
+    expect(
+      getCorrectedIncorrectUpdatesMiddleNumberSum(...parseAll(testInput))
+    ).toBe(123)
   })
 })

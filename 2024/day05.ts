@@ -38,4 +38,32 @@ export function getCorrectUpdatesMiddleNumberSum(
     .map(update => update[Math.floor(update.length / 2)])
     .reduce((a, b) => a + b, 0)
 }
+
+export function getFixedIncorrectUpdate(update: Update, rules: Rule[]): Update {
+  const suitableRules = rules.filter(rule =>
+    rule.every(num => update.includes(num))
+  )
+
+  const countRulesWithNumOnTheRight = update.reduce((acc, num) => {
+    acc.set(num, suitableRules.filter(([, right]) => right === num).length)
+    return acc
+  }, new Map<number, number>())
+
+  return [...countRulesWithNumOnTheRight.entries()]
+    .sort(([, a], [, b]) => a - b)
+    .map(([num]) => num)
+}
+
+export function getCorrectedIncorrectUpdatesMiddleNumberSum(
+  rules: Rule[],
+  updates: Update[]
+): number {
+  return updates
+    .filter(update => !isCorrectUpdate(update, rules))
+    .map(update => getFixedIncorrectUpdate(update, rules))
+    .map(update => update[Math.floor(update.length / 2)])
+    .reduce((a, b) => a + b, 0)
+}
+
 console.log(getCorrectUpdatesMiddleNumberSum(...parseAll(input)))
+console.log(getCorrectedIncorrectUpdatesMiddleNumberSum(...parseAll(input)))
