@@ -15,3 +15,9 @@ describe('getPossibleLinesSum', () => {
     expect(getPossibleLinesSum(parseLines(testInput))).toBe(3749)
   })
 })
+
+describe('getPossibleLinesSum + concat', () => {
+  it('works for test input', () => {
+    expect(getPossibleLinesSum(parseLines(testInput), true)).toBe(11387)
+  })
+})
