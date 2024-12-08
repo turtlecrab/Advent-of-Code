@@ -71,13 +71,13 @@ export function getNextState({ grid, guard }: State): State {
   const nextPos = sumVec(guard.pos, dirVec[guard.dir])
 
   if (grid[nextPos.y]?.[nextPos.x] === Tile.Obstacle) {
-    return getNextState({
+    return {
       grid,
       guard: {
         ...guard,
         dir: dirs[(dirs.indexOf(guard.dir) + 1) % dirs.length],
       },
-    })
+    }
   }
   return {
     grid,
@@ -88,13 +88,14 @@ export function getNextState({ grid, guard }: State): State {
   }
 }
 
-export function isGuardInBounds({ grid, guard }: State): boolean {
+export function isPositionInBounds(pos: Vec, grid: Grid): boolean {
   return (
-    guard.pos.x >= 0 &&
-    guard.pos.y >= 0 &&
-    guard.pos.x < grid[0].length &&
-    guard.pos.y < grid.length
+    pos.x >= 0 && pos.y >= 0 && pos.x < grid[0].length && pos.y < grid.length
   )
+}
+
+export function isGuardInBounds({ grid, guard }: State): boolean {
+  return isPositionInBounds(guard.pos, grid)
 }
 
 export function getVisitedPositionCount(state: State): number {
@@ -108,4 +109,54 @@ export function getVisitedPositionCount(state: State): number {
   return visited.size
 }
 
+export function isStateLoops(state: State): boolean {
+  const visited = new Map<string, Set<Dir>>()
+  const key = (pos: Vec) => `${pos.x},${pos.y}`
+
+  while (isGuardInBounds(state)) {
+    const curPosKey = key(state.guard.pos)
+
+    if (!visited.has(curPosKey)) {
+      visited.set(curPosKey, new Set([state.guard.dir]))
+    } else if (!visited.get(curPosKey).has(state.guard.dir)) {
+      visited.get(curPosKey).add(state.guard.dir)
+    } else {
+      return true
+    }
+    state = getNextState(state)
+  }
+  return false
+}
+
+const copyGrid = (grid: Grid): Grid => grid.map(row => [...row])
+
+export function getPossibleLoopsCount(state: State): number {
+  const loopPositions = new Set<string>()
+  const visited = new Set<string>()
+  const key = (pos: Vec) => `${pos.x},${pos.y}`
+
+  while (isGuardInBounds(state)) {
+    const { guard, grid } = state
+    const aheadPos = sumVec(guard.pos, dirVec[guard.dir])
+
+    if (
+      !visited.has(key(aheadPos)) &&
+      isPositionInBounds(aheadPos, grid) &&
+      grid[aheadPos.y][aheadPos.x] === Tile.Empty
+    ) {
+      const testGrid = copyGrid(grid)
+      testGrid[aheadPos.y][aheadPos.x] = Tile.Obstacle
+
+      if (isStateLoops({ grid: testGrid, guard })) {
+        loopPositions.add(key(aheadPos))
+      }
+      visited.add(key(aheadPos))
+    }
+
+    state = getNextState(state)
+  }
+  return loopPositions.size
+}
+
 console.log(getVisitedPositionCount(parseState(input)))
+console.log(getPossibleLoopsCount(parseState(input))) // 1915
