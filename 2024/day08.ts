@@ -13,7 +13,7 @@ const sumVec = (a: Vec, b: Vec): Vec => ({ x: a.x + b.x, y: a.y + b.y })
 const multiplyVec = (n: number, v: Vec) => ({ x: n * v.x, y: n * v.y })
 
 const key = (pos: Vec) => `${pos.x},${pos.y}`
-const keyToPos = (s: string): Vec => {
+const posFromKey = (s: string): Vec => {
   const [x, y] = s.split(',').map(Number)
   return { x, y }
 }
@@ -59,9 +59,12 @@ export function getPairCombinations<T>(list: Iterable<T>) {
   return pairs
 }
 
-export function getPossibleAntinodeLocations(a: string, b: string): string[] {
-  const aPos = keyToPos(a)
-  const bPos = keyToPos(b)
+export function getPossibleAntinodeLocations(
+  aKey: string,
+  bKey: string
+): string[] {
+  const aPos = posFromKey(aKey)
+  const bPos = posFromKey(bKey)
   const p1 = sumVec(multiplyVec(2, bPos), multiplyVec(-1, aPos)) // 2 * b - a
   const p2 = sumVec(multiplyVec(2, aPos), multiplyVec(-1, bPos)) // 2 * a - b
 
@@ -80,7 +83,7 @@ export function getAntinodeCount({ map, w, h }: GridData): number {
 
     for (let pair of pairs) {
       const antinodes = getPossibleAntinodeLocations(...pair).filter(key =>
-        isPositionInBounds(keyToPos(key), w, h)
+        isPositionInBounds(posFromKey(key), w, h)
       )
       antinodes.forEach(antinode => locations.add(antinode))
     }
@@ -88,4 +91,57 @@ export function getAntinodeCount({ map, w, h }: GridData): number {
   return locations.size
 }
 
+export function getLineAntinodes(
+  aKey: string,
+  bKey: string,
+  w: number,
+  h: number
+): string[] {
+  const a = posFromKey(aKey)
+  const b = posFromKey(bKey)
+
+  const points: string[] = []
+
+  const _dx = b.x - a.x
+  const _dy = b.y - a.y
+
+  const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b))
+  const divider = gcd(_dx, _dy)
+
+  const dx = _dx / divider
+  const dy = _dy / divider
+
+  let current = a
+
+  while (isPositionInBounds(current, w, h)) {
+    points.push(key(current))
+    current = sumVec(current, { x: dx, y: dy })
+  }
+
+  current = a
+
+  while (isPositionInBounds(current, w, h)) {
+    points.push(key(current))
+    current = sumVec(current, { x: -dx, y: -dy })
+  }
+
+  return points
+}
+
+export function getAntinodeCount2({ map, w, h }: GridData) {
+  const locations = new Set<string>()
+
+  for (let [, positions] of map) {
+    const pairs = getPairCombinations(positions)
+
+    for (let pair of pairs) {
+      getLineAntinodes(...pair, w, h).forEach(antinode =>
+        locations.add(antinode)
+      )
+    }
+  }
+  return locations.size
+}
+
 console.log(getAntinodeCount(parseMap(input)))
+console.log(getAntinodeCount2(parseMap(input)))
