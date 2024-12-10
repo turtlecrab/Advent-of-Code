@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "vitest --silent --reporter verbose",
-    "loud": "vitest --reporter verbose"
+    "loud": "vitest --reporter verbose",
+    "new": "bun new.ts"
   },
   "keywords": [],
   "author": "",
