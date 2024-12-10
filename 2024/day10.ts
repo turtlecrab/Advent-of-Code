@@ -43,9 +43,11 @@ const dirs = [
   { x: 0, y: -1 },
 ]
 
-export function getHeadScore(head: Vec, grid: Grid): number {
+export function getHeadScore(head: Vec, grid: Grid) {
   const endPositions = new Set<string>()
   const key = (pos: Vec) => `${pos.x},${pos.y}`
+
+  let paths = 0
 
   const getTile = (pos: Vec) => grid[pos.y][pos.x]
 
@@ -56,6 +58,7 @@ export function getHeadScore(head: Vec, grid: Grid): number {
 
     if (getTile(cur) === 9) {
       endPositions.add(key(cur))
+      paths += 1
       continue
     }
 
@@ -70,11 +73,20 @@ export function getHeadScore(head: Vec, grid: Grid): number {
       }
     }
   }
-  return endPositions.size
+  return { ends: endPositions.size, paths }
 }
 
 export function getScoreSum(grid: Grid, heads: Vec[]): number {
-  return heads.map(head => getHeadScore(head, grid)).reduce((a, b) => a + b)
+  return heads
+    .map(head => getHeadScore(head, grid).ends)
+    .reduce((a, b) => a + b)
+}
+
+export function getRatingSum(grid: Grid, heads: Vec[]): number {
+  return heads
+    .map(head => getHeadScore(head, grid).paths)
+    .reduce((a, b) => a + b)
 }
 
 console.log(getScoreSum(...parseGrid(input)))
+console.log(getRatingSum(...parseGrid(input)))

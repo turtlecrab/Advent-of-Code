@@ -1,4 +1,4 @@
-import { getScoreSum, parseGrid } from './day10'
+import { getRatingSum, getScoreSum, parseGrid } from './day10'
 
 const testInput = `89010123
 78121874
@@ -12,5 +12,11 @@ const testInput = `89010123
 describe('getScoreSum', () => {
   it('works for test input', () => {
     expect(getScoreSum(...parseGrid(testInput))).toBe(36)
+  })
+})
+
+describe('getRatingSum', () => {
+  it('works for test input', () => {
+    expect(getRatingSum(...parseGrid(testInput))).toBe(81)
   })
 })
