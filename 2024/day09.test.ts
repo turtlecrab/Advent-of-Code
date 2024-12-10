@@ -1,6 +1,12 @@
 const testInput = `2333133121414131402`
 
-import { defrag, EMPTY, getChecksum, parseUint16Array } from './day09'
+import {
+  defrag,
+  getChecksumPart2,
+  EMPTY,
+  getChecksum,
+  parseUint16Array,
+} from './day09'
 
 const stringify = (data: Uint16Array) =>
   Array.from(data).reduce(
@@ -27,5 +33,11 @@ describe('defrag', () => {
 describe('getChecksum', () => {
   it('works for test input', () => {
     expect(getChecksum(defrag(parseUint16Array(testInput)))).toBe(1928)
+  })
+})
+
+describe('getChecksumPart2', () => {
+  it('works for test input', () => {
+    expect(getChecksumPart2(testInput)).toBe(2858)
   })
 })

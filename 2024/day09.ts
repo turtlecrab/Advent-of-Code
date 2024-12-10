@@ -56,4 +56,56 @@ export function getChecksum(data: Uint16Array): number {
   return data.reduce((acc, cur, i) => acc + (cur === EMPTY ? 0 : cur * i), 0)
 }
 
+export function getChecksumPart2(input: string) {
+  const sizes = [...input].map(Number)
+  const startHeads = sizes.map((_, i) =>
+    sizes.slice(0, i).reduce((a, b) => a + b, 0)
+  )
+  const lastFileIdx =
+    sizes.length % 2 === 0 ? sizes.length - 2 : sizes.length - 1
+
+  const movedFilesIndices = new Set<number>()
+  const movedFilesNewHeads = new Map<number, number>() // new head => idx
+
+  for (let fileIdx = lastFileIdx; fileIdx > 1; fileIdx -= 2) {
+    for (let freeIdx = 1; freeIdx < fileIdx; freeIdx += 2) {
+      if (sizes[freeIdx] >= sizes[fileIdx]) {
+        movedFilesIndices.add(fileIdx)
+        movedFilesNewHeads.set(startHeads[freeIdx], fileIdx)
+
+        sizes[freeIdx] = sizes[freeIdx] - sizes[fileIdx]
+        startHeads[freeIdx] += sizes[fileIdx]
+
+        break
+      }
+    }
+  }
+
+  let sum = 0
+
+  for (let idx = 0; idx < sizes.length; idx += 2) {
+    let head = startHeads[idx]
+
+    if (!movedFilesIndices.has(idx)) {
+      for (let i = 0; i < sizes[idx]; i++) {
+        sum += head * (idx / 2)
+        head += 1
+      }
+    } else {
+      head += sizes[idx]
+    }
+
+    while (movedFilesNewHeads.has(head)) {
+      const movedIdx = movedFilesNewHeads.get(head)
+      for (let i = 0; i < sizes[movedIdx]; i++) {
+        sum += head * (movedIdx / 2)
+        head += 1
+      }
+    }
+  }
+
+  return sum
+}
+
 console.log(getChecksum(defrag(parseUint16Array(input))))
+console.log(getChecksumPart2(input))
