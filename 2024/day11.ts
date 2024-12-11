@@ -33,8 +33,31 @@ export function blink(stones: number[], blinks = 1): number[] {
   return next
 }
 
+export function getStoneSizeAfterBlinks(
+  stone: number,
+  blinks: number,
+  cache = new Map<string, number>()
+): number {
+  if (blinks <= 0) return 1
+
+  const key = `${stone}:${blinks}`
+
+  if (cache.has(key)) return cache.get(key)
+
+  const result = blink([stone])
+    .map(s => getStoneSizeAfterBlinks(s, blinks - 1, cache))
+    .reduce((a, b) => a + b)
+
+  cache.set(key, result)
+  return result
+}
+
 export function getStonesCount(stones: number[], blinks: number): number {
-  return blink(stones, blinks).length
+  const cache = new Map<string, number>()
+  return stones
+    .map(stone => getStoneSizeAfterBlinks(stone, blinks, cache))
+    .reduce((a, b) => a + b)
 }
 
 console.log(getStonesCount(parseStones(input), 25))
+console.log(getStonesCount(parseStones(input), 75))
