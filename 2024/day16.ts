@@ -1,3 +1,4 @@
+import { MinPriorityQueue } from 'datastructures-js'
 import * as fs from 'fs'
 
 const input = fs
@@ -77,10 +78,12 @@ export function getLowestScore(grid: Grid, start: Vec, finish: Vec): number {
     score: 0,
   }
 
-  const nodes = [startNode]
+  const nodes = new MinPriorityQueue<typeof startNode>(a => a.score)
 
-  while (nodes.length) {
-    const cur = nodes.sort((a, b) => b.score - a.score).pop()
+  nodes.push(startNode)
+
+  while (nodes.size()) {
+    const cur = nodes.pop()
 
     if (isEquals(cur.pos, finish)) {
       return cur.score
