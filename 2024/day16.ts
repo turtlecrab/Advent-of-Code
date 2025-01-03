@@ -29,12 +29,14 @@ const nextLeftDir = (dir: Dir) =>
 const nextRightDir = (dir: Dir) =>
   dirs[modulo(dirs.indexOf(dir) + 1, dirs.length)]
 
-const dirVec: Record<Dir, Vec> = {
+const dirToVec: Record<Dir, Vec> = {
   [Dir.Up]: { x: 0, y: -1 },
   [Dir.Right]: { x: 1, y: 0 },
   [Dir.Down]: { x: 0, y: 1 },
   [Dir.Left]: { x: -1, y: 0 },
 }
+
+const step = (pos: Vec, dir: Dir) => sumVec(pos, dirToVec[dir])
 
 enum Tile {
   Empty = '.',
@@ -42,9 +44,6 @@ enum Tile {
 }
 
 type Grid = Tile[][]
-
-const isEmptyTile = (pos: Vec, grid: Grid) =>
-  grid[pos.y]?.[pos.x] === Tile.Empty
 
 const SCORE_MOVE = 1
 const SCORE_TURN = 1000
@@ -68,56 +67,118 @@ export function parseGrid(input: string): [Grid, Vec, Vec] {
   return [grid, start, finish]
 }
 
-export function getLowestScore(grid: Grid, start: Vec, finish: Vec): number {
-  const visited = new Set<string>()
+type Node = {
+  pos: Vec
+  dir: Dir
+  score: number
+  prev: Node | null
+}
+
+export function getAllLowestEndNodes(
+  grid: Grid,
+  start: Vec,
+  finish: Vec
+): Node[] {
+  const visited = new Map<string, number>() // pos+dir => score
   const key = (pos: Vec, dir: Dir) => `${pos.x}:${pos.y}:${dir}`
+
+  const isEmptyTile = (pos: Vec) => grid[pos.y]?.[pos.x] === Tile.Empty
+
+  const endNodes: Node[] = []
 
   const startNode = {
     pos: start,
     dir: Dir.Right,
     score: 0,
+    prev: null,
   }
 
-  const nodes = new MinPriorityQueue<typeof startNode>(a => a.score)
-
+  const nodes = new MinPriorityQueue<Node>(a => a.score)
   nodes.push(startNode)
 
   while (nodes.size()) {
     const cur = nodes.pop()
 
     if (isEquals(cur.pos, finish)) {
-      return cur.score
+      endNodes.push(cur)
+      continue
     }
 
-    if (!visited.has(key(cur.pos, nextLeftDir(cur.dir)))) {
+    if (endNodes.length && cur.score > endNodes[0].score) {
+      continue
+    }
+
+    if (
+      isEmptyTile(step(cur.pos, nextLeftDir(cur.dir))) &&
+      cur.score + SCORE_TURN <=
+        (visited.get(key(cur.pos, nextLeftDir(cur.dir))) ?? Infinity)
+    ) {
       nodes.push({
         pos: cur.pos,
         dir: nextLeftDir(cur.dir),
         score: cur.score + SCORE_TURN,
+        prev: cur,
       })
-      visited.add(key(cur.pos, nextLeftDir(cur.dir)))
+      visited.set(key(cur.pos, nextLeftDir(cur.dir)), cur.score + SCORE_TURN)
     }
 
-    if (!visited.has(key(cur.pos, nextRightDir(cur.dir)))) {
+    if (
+      isEmptyTile(step(cur.pos, nextRightDir(cur.dir))) &&
+      cur.score + SCORE_TURN <=
+        (visited.get(key(cur.pos, nextRightDir(cur.dir))) ?? Infinity)
+    ) {
       nodes.push({
         pos: cur.pos,
         dir: nextRightDir(cur.dir),
         score: cur.score + SCORE_TURN,
+        prev: cur,
       })
-      visited.add(key(cur.pos, nextRightDir(cur.dir)))
+      visited.set(key(cur.pos, nextRightDir(cur.dir)), cur.score + SCORE_TURN)
     }
 
-    if (isEmptyTile(sumVec(cur.pos, dirVec[cur.dir]), grid)) {
+    if (
+      isEmptyTile(step(cur.pos, cur.dir)) &&
+      cur.score + SCORE_MOVE <=
+        (visited.get(key(step(cur.pos, cur.dir), cur.dir)) ?? Infinity)
+    ) {
       nodes.push({
-        pos: sumVec(cur.pos, dirVec[cur.dir]),
+        pos: step(cur.pos, cur.dir),
         dir: cur.dir,
         score: cur.score + SCORE_MOVE,
+        prev: cur,
       })
-      visited.add(key(cur.pos, nextRightDir(cur.dir)))
+      visited.set(key(step(cur.pos, cur.dir), cur.dir), cur.score + SCORE_MOVE)
     }
   }
 
-  return Infinity
+  return endNodes
+}
+
+export function getLowestScore(grid: Grid, start: Vec, finish: Vec): number {
+  return getAllLowestEndNodes(grid, start, finish)[0].score
+}
+
+export function getVisitedTilesCount(
+  grid: Grid,
+  start: Vec,
+  finish: Vec
+): number {
+  const endNodes = getAllLowestEndNodes(grid, start, finish)
+
+  const key = (pos: Vec) => `${pos.x}:${pos.y}`
+
+  const visited = new Set<string>(
+    endNodes.flatMap(node => {
+      const path = [node]
+
+      while (path.at(-1).prev) {
+        path.push(path.at(-1).prev)
+      }
+      return path.map(n => key(n.pos))
+    })
+  )
+  return visited.size
 }
 
 console.log(getLowestScore(...parseGrid(input)))
+console.log(getVisitedTilesCount(...parseGrid(input)))
