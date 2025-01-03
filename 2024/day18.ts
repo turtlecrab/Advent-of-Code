@@ -71,11 +71,23 @@ export function getPath(finish: number, walls: string[]): State | null {
 }
 
 export function getBlockingWall(finish: number, walls: string[]): string {
-  for (let i = 0; i < walls.length; i++) {
-    const path = getPath(finish, walls.slice(0, i + 1))
-    if (!path) return walls[i]
+  let freeIdx = -1
+  let blockedIdx = walls.length
+
+  while (true) {
+    if (blockedIdx === freeIdx + 1) {
+      return walls[freeIdx]
+    }
+    const middleIdx = Math.floor((blockedIdx + freeIdx) / 2)
+
+    const path = getPath(finish, walls.slice(0, middleIdx))
+
+    if (path) {
+      freeIdx = middleIdx
+    } else {
+      blockedIdx = middleIdx
+    }
   }
-  return null
 }
 
 console.log(getPath(70, input.split('\n').slice(0, 1024))?.step)
