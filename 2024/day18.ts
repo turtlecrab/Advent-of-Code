@@ -70,4 +70,13 @@ export function getPath(finish: number, walls: string[]): State | null {
   return null
 }
 
+export function getBlockingWall(finish: number, walls: string[]): string {
+  for (let i = 0; i < walls.length; i++) {
+    const path = getPath(finish, walls.slice(0, i + 1))
+    if (!path) return walls[i]
+  }
+  return null
+}
+
 console.log(getPath(70, input.split('\n').slice(0, 1024))?.step)
+console.log(getBlockingWall(70, input.split('\n')))
