@@ -79,8 +79,18 @@ export function getAreaPrice(area: Map<string, Set<Dir>>) {
   return values.length * values.reduce((a, b) => a + b)
 }
 
-export function getAreasTotalPrice(areas: Map<string, Set<Dir>>[]) {
-  return areas.map(getAreaPrice).reduce((a, b) => a + b)
+export function getAreaDiscountPrice(area: Map<string, Set<Dir>>) {
+  //
+  return 0
+}
+
+export function getAreasTotalPrice(
+  areas: Map<string, Set<Dir>>[],
+  discount = false
+) {
+  return areas
+    .map(discount ? getAreaDiscountPrice : getAreaPrice)
+    .reduce((a, b) => a + b)
 }
 
 console.log(getAreasTotalPrice(getAreas(parseGrid(input))))

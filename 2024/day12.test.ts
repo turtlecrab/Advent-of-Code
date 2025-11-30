@@ -16,3 +16,9 @@ describe('getAreasTotalPrice', () => {
     expect(getAreasTotalPrice(getAreas(parseGrid(testInput)))).toBe(1930)
   })
 })
+
+describe('getAreasTotalPrice part 2', () => {
+  it('works for test input', () => {
+    expect(getAreasTotalPrice(getAreas(parseGrid(testInput)), true)).toBe(1206)
+  })
+})

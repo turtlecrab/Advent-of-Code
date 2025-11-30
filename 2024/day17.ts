@@ -24,14 +24,31 @@ const op = ['adv', 'bxl', 'bst', 'jnz', 'bxc', 'out', 'bdv', 'cdv'] as const
 export function execute(
   { A, B, C }: Record<string, number>,
   program: number[],
-  pointer = 0
+  checkQuine = false
 ): number[] {
   const out: number[] = []
 
   const combo = (operand: number) =>
     operand === 4 ? A : operand === 5 ? B : operand === 6 ? C : operand
 
+  let pointer = 0
+
+  const visited = new Set<string>()
+  const key = (...nums: number[]) => nums.join()
+
+  if (A % 100_000 === 0) {
+    console.log('A:', A)
+  }
+
   while (pointer < program.length) {
+    if (checkQuine) {
+      if (visited.has(key(A, B, C, pointer))) {
+        console.log('looping')
+        return [NaN]
+      }
+      visited.add(key(A, B, C, pointer))
+    }
+
     const [opcode, operand] = program.slice(pointer, pointer + 2)
 
     switch (op[opcode]) {
@@ -52,6 +69,10 @@ export function execute(
         break
       case 'out':
         out.push(combo(operand) % 8)
+
+        if (checkQuine && !program.join().startsWith(out.join())) {
+          return [NaN]
+        }
         break
       case 'bdv':
         B = Math.floor(A / 2 ** combo(operand))
@@ -59,6 +80,9 @@ export function execute(
       case 'cdv':
         C = Math.floor(A / 2 ** combo(operand))
         break
+      default:
+        console.log('default')
+        return [NaN]
     }
     pointer += 2
   }
@@ -66,4 +90,17 @@ export function execute(
   return out
 }
 
+export function findQuine(program: number[]): number {
+  for (let A = 0; ; A++) {
+    const out = execute({ A, B: 0, C: 0 }, program, true)
+
+    if (out.join() === program.join()) {
+      return A
+    }
+  }
+
+  return NaN
+}
+
 console.log(execute(...parseProgram(input)).join())
+console.log(findQuine(parseProgram(input)[1]))
