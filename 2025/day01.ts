@@ -26,4 +26,27 @@ export function getPassword(dials: number[]) {
   return password
 }
 
+export function getPassword2(dials: number[]) {
+  let cur = 50
+  let password = 0
+
+  for (let dial of dials) {
+    password += getZeroCrossings(cur, cur + dial)
+
+    cur = modulo(cur + dial, 100)
+  }
+  return password
+}
+
+export function getZeroCrossings(from: number, to: number) {
+  let count = 0
+  const dir = Math.sign(to - from)
+
+  for (let i = from; i !== to; i += dir) {
+    if (i % 100 === 0) count += 1
+  }
+  return count
+}
+
 console.log(getPassword(parseDials(input)))
+console.log(getPassword2(parseDials(input)))
