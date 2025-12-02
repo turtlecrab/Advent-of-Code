@@ -1,4 +1,10 @@
-import { getInvalidSum, invalidsBetween, parseRanges } from './day02'
+import {
+  getInvalidCount,
+  getInvalidCount2,
+  getInvalidSum,
+  invalidsBetween,
+  parseRanges,
+} from './day02'
 
 const testInput = `11-22,95-115,998-1012,1188511880-1188511890,222220-222224,
 1698522-1698528,446443-446449,38593856-38593862,565653-565659,
@@ -15,6 +21,16 @@ describe('invalidsBetween', () => {
 
 describe('getInvalidSum', () => {
   it('works for test input', () => {
-    expect(getInvalidSum(parseRanges(testInput))).toBe(1227775554)
+    expect(getInvalidSum(parseRanges(testInput), getInvalidCount)).toBe(
+      1227775554
+    )
+  })
+})
+
+describe('getInvalidSum part 2', () => {
+  it('works for test input', () => {
+    expect(getInvalidSum(parseRanges(testInput), getInvalidCount2)).toBe(
+      4174379265
+    )
   })
 })

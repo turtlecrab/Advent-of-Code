@@ -8,8 +8,11 @@ export function parseRanges(input: string) {
   return input.split(',').map(line => line.split('-').map(Number))
 }
 
-export function getInvalidSum(ranges: number[][]) {
-  return ranges.map(range => getInvalidCount(range)).reduce((a, b) => a + b)
+export function getInvalidSum(
+  ranges: number[][],
+  getCount: (range: number[]) => number
+) {
+  return ranges.map(range => getCount(range)).reduce((a, b) => a + b)
 }
 
 export function getInvalidCount([from, to]: number[]) {
@@ -42,6 +45,25 @@ export function* invalidsBetween(from: number, to: number) {
   }
 }
 
+export function getInvalidCount2([from, to]: number[]) {
+  return invalidsBetween2(from, to).reduce((a, b) => a + b, 0)
+}
+
+export function* invalidsBetween2(from: number, to: number) {
+  let cur = from
+
+  while (cur <= to) {
+    if (/^(\d+)\1+$/.test(String(cur))) {
+      yield cur
+    }
+    cur += 1
+  }
+}
+
 console.time('p1')
-console.log(getInvalidSum(parseRanges(input)))
+console.log(getInvalidSum(parseRanges(input), getInvalidCount))
 console.timeEnd('p1')
+
+console.time('p2')
+console.log(getInvalidSum(parseRanges(input), getInvalidCount2))
+console.timeEnd('p2')
