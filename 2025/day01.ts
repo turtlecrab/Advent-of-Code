@@ -48,5 +48,10 @@ export function getZeroCrossings(from: number, to: number) {
   return count
 }
 
+console.time('p1')
 console.log(getPassword(parseDials(input)))
+console.timeEnd('p1')
+
+console.time('p2')
 console.log(getPassword2(parseDials(input)))
+console.timeEnd('p2')

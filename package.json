@@ -6,7 +6,9 @@
   "scripts": {
     "test": "vitest --silent --reporter verbose",
     "loud": "vitest --reporter verbose",
-    "new": "bun new.ts"
+    "new": "bun new.ts",
+    "cr": "watchexec -w 2025 cargo run --bin",
+    "ct": "watchexec -w 2025 cargo test --bin"
   },
   "keywords": [],
   "author": "",
