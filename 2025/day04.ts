@@ -58,6 +58,41 @@ export function countAccessiblePapers(grid: Tile[][]) {
   return count
 }
 
+export function pass(grid: Tile[][]) {
+  const tileAt = (pos: Pos) => grid[pos.y]?.[pos.x]
+  let removedCount = 0
+
+  for (let y = 0; y < grid.length; y++) {
+    for (let x = 0; x < grid[0].length; x++) {
+      if (
+        tileAt({ x, y }) === Tile.Paper &&
+        adjacentPapersCount({ x, y }, grid) < 4
+      ) {
+        grid[y][x] = Tile.Empty
+        removedCount += 1
+      }
+    }
+  }
+  return removedCount
+}
+
+export function removeAll(grid: Tile[][]) {
+  let allRemovedCount = 0
+
+  while (true) {
+    const removed = pass(grid)
+    
+    if (removed === 0) {
+      return allRemovedCount
+    }
+    allRemovedCount += removed
+  }
+}
+
 console.time('p1')
 console.log(countAccessiblePapers(parseGrid(input)))
 console.timeEnd('p1')
+
+console.time('p2')
+console.log(removeAll(parseGrid(input)))
+console.timeEnd('p2')
