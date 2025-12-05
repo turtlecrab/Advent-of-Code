@@ -1,4 +1,4 @@
-use std::{fs, time::Instant};
+use std::{fs, ops::RangeInclusive, time::Instant};
 
 fn main() {
     let input = fs::read_to_string("./2025/day02.input.txt")
@@ -13,36 +13,24 @@ fn main() {
     println!("p2: {:?}", time.elapsed());
 }
 
-#[derive(Debug, PartialEq, Eq)]
-struct Range {
-    from: u64,
-    to: u64,
-}
-
-fn parse(input: &str) -> Vec<Range> {
+fn parse(input: &str) -> Vec<RangeInclusive<u64>> {
     input
         .split(',')
         .map(|r| r.trim().split_once('-').unwrap())
-        .map(|(from, to)| Range {
-            from: from.parse().unwrap(),
-            to: to.parse().unwrap(),
+        .map(|(from, to)| {
+            let from: u64 = from.parse().unwrap();
+            let to: u64 = to.parse().unwrap();
+            from..=to
         })
         .collect()
 }
 
-fn invalids_between<F>(range: &Range, pred: F) -> Vec<u64>
-where
-    F: Fn(u64) -> bool,
-{
-    (range.from..=range.to).filter(|n| pred(*n)).collect()
-}
-
-fn is_invalid_part1(n: u64) -> bool {
+fn is_invalid_part1(n: &u64) -> bool {
     let s = n.to_string();
     s[0..s.len() / 2] == s[s.len() / 2..]
 }
 
-fn is_invalid_part2(n: u64) -> bool {
+fn is_invalid_part2(n: &u64) -> bool {
     let s = n.to_string();
     let t = format!("{s}{s}");
     t[1..t.len() - 1].contains(&s)
@@ -53,17 +41,14 @@ enum Part {
     Two,
 }
 
-fn get_invalids_sum(ranges: Vec<Range>, part: Part) -> u64 {
+fn get_invalids_sum(ranges: Vec<RangeInclusive<u64>>, part: Part) -> u64 {
     ranges
-        .iter()
-        .flat_map(|range| {
-            invalids_between(
-                range,
-                match part {
-                    Part::One => is_invalid_part1,
-                    Part::Two => is_invalid_part2,
-                },
-            )
+        .into_iter()
+        .flat_map(|r| {
+            r.filter(match part {
+                Part::One => is_invalid_part1,
+                Part::Two => is_invalid_part2,
+            })
         })
         .sum()
 }
@@ -81,56 +66,12 @@ mod tests {
     fn test() {
         assert_eq!(
             parse("1188511880-1188511890,2121212118-2121212124"),
-            vec![
-                Range {
-                    from: 1188511880,
-                    to: 1188511890
-                },
-                Range {
-                    from: 2121212118,
-                    to: 2121212124
-                }
-            ]
-        );
-
-        assert_eq!(
-            invalids_between(&Range { from: 11, to: 22 }, is_invalid_part1),
-            vec![11, 22]
-        );
-        assert_eq!(
-            invalids_between(
-                &Range {
-                    from: 1188511880,
-                    to: 1188511890
-                },
-                is_invalid_part1
-            ),
-            vec![1188511885]
-        );
-        assert_eq!(
-            invalids_between(
-                &Range {
-                    from: 222220,
-                    to: 222224
-                },
-                is_invalid_part1
-            ),
-            vec![222222]
-        );
-        assert_eq!(
-            invalids_between(
-                &Range {
-                    from: 1698522,
-                    to: 1698528
-                },
-                is_invalid_part1
-            ),
-            vec![]
+            vec![1188511880..=1188511890, 2121212118..=2121212124]
         );
 
         assert_eq!(get_invalids_sum(parse(INPUT), Part::One), 1227775554);
         assert_eq!(get_invalids_sum(parse(INPUT), Part::Two), 4174379265);
 
-        main();
+        // main();
     }
 }
