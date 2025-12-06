@@ -29,6 +29,53 @@ export function getFreshCount({
   return ids.filter(id => fresh.some(range => isInRange(id, range))).length
 }
 
+export function canMerge(a: Range, b: Range) {
+  if (a[0] > b[1] + 1 || b[0] > a[1] + 1) {
+    return false
+  }
+  return true
+}
+
+export function merge(a: Range, b: Range): Range {
+  const start = Math.min(...a, ...b)
+  const end = Math.max(...a, ...b)
+
+  return [start, end]
+}
+
+export function mergeRanges(ranges: Range[]) {
+  let allMerged: Range[] = []
+
+  outer: while (ranges.length > 1) {
+    let last = ranges.pop()
+
+    for (let i = 0; i < ranges.length; i++) {
+      let cur = ranges[i]
+
+      if (canMerge(last, cur)) {
+        const merged = merge(last, cur)
+        ranges.splice(i, 1)
+        ranges.push(merged)
+        continue outer
+      }
+    }
+    allMerged.push(last)
+  }
+  allMerged.push(...ranges)
+
+  return allMerged
+}
+
+export function getAllFreshCount(fresh: Range[]) {
+  return mergeRanges(fresh)
+    .map(r => r[1] - r[0] + 1)
+    .reduce((a, b) => a + b)
+}
+
 console.time('p1')
 console.log(getFreshCount(parse(input)))
 console.timeEnd('p1')
+
+console.time('p2')
+console.log(getAllFreshCount(parse(input).fresh))
+console.timeEnd('p2')
