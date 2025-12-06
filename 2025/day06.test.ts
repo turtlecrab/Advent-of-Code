@@ -1,4 +1,4 @@
-import { getSum, parse } from './day06'
+import { getSum, getSum2, parse, parse2 } from './day06'
 
 const testInput = `
 123 328  51 64 
@@ -9,5 +9,11 @@ const testInput = `
 describe('Day06', () => {
   it('works for test input', () => {
     expect(getSum(parse(testInput))).toBe(4277556)
+  })
+})
+
+describe('part 2', () => {
+  it('works for test input', () => {
+    expect(getSum2(parse2(testInput))).toBe(3263827)
   })
 })

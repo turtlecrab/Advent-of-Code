@@ -25,6 +25,42 @@ export function getSum({ lines, ops }: ReturnType<typeof parse>) {
   return sum
 }
 
+export function parse2(input: string) {
+  const lines = input.split('\n')
+
+  const commands: { op: string; nums: number[] }[] = []
+
+  for (let x = 0; x < lines[0].length; x++) {
+    const col = lines.map(line => line[x])
+
+    if (col.every(char => char === ' ')) {
+      continue
+    }
+
+    const op = col.at(-1)
+
+    if (op !== ' ') {
+      commands.push({ op, nums: [] })
+    }
+
+    const num = Number(col.slice(0, -1).join(''))
+
+    commands.at(-1).nums.push(num)
+  }
+
+  return commands
+}
+
+export function getSum2(commands: ReturnType<typeof parse2>) {
+  return commands
+    .map(cmd => cmd.nums.reduce((a, b) => (cmd.op === '+' ? a + b : a * b)))
+    .reduce((a, b) => a + b)
+}
+
 console.time('p1')
 console.log(getSum(parse(input)))
 console.timeEnd('p1')
+
+console.time('p2')
+console.log(getSum2(parse2(input)))
+console.timeEnd('p2')
