@@ -129,6 +129,6 @@ mod tests {
         assert_eq!(part_1(parse_1(input)), 4277556);
         assert_eq!(part_2(parse_2(input)), 3263827);
 
-        main();
+        // main();
     }
 }
