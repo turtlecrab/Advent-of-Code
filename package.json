@@ -7,8 +7,8 @@
     "test": "vitest --silent --reporter verbose",
     "loud": "vitest --reporter verbose",
     "new": "bun new.ts",
-    "cr": "watchexec -w 2025 cargo run --bin",
-    "ct": "watchexec -w 2025 cargo test --bin",
+    "cr": "watchexec -w 2025 cargo run --release --bin $day",
+    "ct": "watchexec -w 2025 cargo test --bin $day",
     "cc": "watchexec -w 2025 cargo test --bin $day -- --no-capture"
   },
   "keywords": [],

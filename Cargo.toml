@@ -12,3 +12,7 @@ path = "2025/day01.rs"
 [[bin]]
 name = "2"
 path = "2025/day02.rs"
+
+[[bin]]
+name = "3"
+path = "2025/day03.rs"
