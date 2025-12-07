@@ -5,12 +5,12 @@ const input = fs
   .replace(/\r/g, '')
 
 export function parse(input: string) {
-  let start = { x: -1, y: -1 }
+  let start = -1
 
-  const rows = input.split('\n').map((line, y) => {
+  const rows = input.split('\n').map(line => {
     if (line.includes('S')) {
       const idx = line.indexOf('S')
-      start = { x: idx, y }
+      start = idx
       line = line.replace('S', '.')
     }
     const set = new Set<number>()
@@ -24,7 +24,7 @@ export function parse(input: string) {
     return set
   })
 
-  return { start, rows }
+  return [start, rows] as const
 }
 
 export function step(state: Set<number>, splitters: Set<number>) {
@@ -43,8 +43,8 @@ export function step(state: Set<number>, splitters: Set<number>) {
   return { result, splitCount }
 }
 
-export function play({ start, rows }: ReturnType<typeof parse>) {
-  let beams = new Set([start.x])
+export function play(start: number, rows: Set<number>[]) {
+  let beams = new Set([start])
 
   let totalSplits = 0
 
@@ -56,6 +56,48 @@ export function play({ start, rows }: ReturnType<typeof parse>) {
   return totalSplits
 }
 
+export function quantumStep(state: number, splitters: Set<number>) {
+  if (splitters.has(state)) {
+    return [state - 1, state + 1]
+  }
+  return [state]
+}
+
+const getKey = (state: number, rows: Set<number>[]) =>
+  `${state}_${rows
+    .map(row => row.keys().reduce((a, b) => `${a},${b}`, ''))
+    .join('/')}`
+
+export function quantumPlay(
+  state: number,
+  rows: Set<number>[],
+  cache = new Map<string, number>()
+) {
+  if (rows.length === 0) return 1
+
+  const key = getKey(state, rows)
+
+  if (cache.has(key)) {
+    return cache.get(key)
+  }
+
+  const row = rows[0]
+  const nextStates = quantumStep(state, row)
+  const nextRows = rows.slice(1)
+
+  const result = nextStates
+    .map(state => quantumPlay(state, nextRows, cache))
+    .reduce((a, b) => a + b)
+
+  cache.set(key, result)
+
+  return result
+}
+
 console.time('p1')
-console.log(play(parse(input)))
+console.log(play(...parse(input)))
 console.timeEnd('p1')
+
+console.time('p2')
+console.log(quantumPlay(...parse(input)))
+console.timeEnd('p2')

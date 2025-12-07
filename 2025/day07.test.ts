@@ -1,4 +1,4 @@
-import { parse, play } from './day07'
+import { parse, play, quantumPlay } from './day07'
 
 const testInput = `
 .......S.......
@@ -20,6 +20,12 @@ const testInput = `
 
 describe('part 1', () => {
   it('works for test input', () => {
-    expect(play(parse(testInput))).toBe(21)
+    expect(play(...parse(testInput))).toBe(21)
+  })
+})
+
+describe('part 2', () => {
+  it('works for test input', () => {
+    expect(quantumPlay(...parse(testInput))).toBe(40)
   })
 })
