@@ -34,7 +34,7 @@ export function getSortedPairs(points: Vec3[]) {
   return [points, result] as const
 }
 
-export function getCircuitMul(
+export function part1(
   points: Vec3[],
   pairs: PriorityQueue<[Vec3, Vec3]>,
   rounds: number
@@ -88,6 +88,56 @@ export function getCircuitMul(
     .reduce((a, b) => a * b)
 }
 
+export function part2(points: Vec3[], pairs: PriorityQueue<[Vec3, Vec3]>) {
+  const circuitIds = new Map<number, Set<[Vec3, Vec3]>>()
+  const pointToCircuit = new Map<Vec3, number>()
+
+  let last: [Vec3, Vec3] | null = null
+  let i = 0
+  while (pointToCircuit.size < points.length || circuitIds.size > 1) {
+    const pair = pairs.pop()
+    const [a, b] = pair
+
+    if (pointToCircuit.has(a) && pointToCircuit.has(b)) {
+      const circuitA = pointToCircuit.get(a)
+      const circuitB = pointToCircuit.get(b)
+
+      if (circuitA !== circuitB) {
+        const pairsInB = circuitIds.get(circuitB)
+        pairsInB.forEach(p => circuitIds.get(circuitA).add(p))
+        circuitIds.delete(circuitB)
+        pairsInB.forEach(pair => {
+          pointToCircuit.set(pair[0], circuitA)
+          pointToCircuit.set(pair[1], circuitA)
+        })
+      }
+    } else if (pointToCircuit.has(a) || pointToCircuit.has(b)) {
+      const circuit = pointToCircuit.get(a) ?? pointToCircuit.get(b)
+
+      pointToCircuit.set(a, circuit)
+      pointToCircuit.set(b, circuit)
+
+      circuitIds.get(circuit).add(pair)
+    } else {
+      const circuit = i
+
+      pointToCircuit.set(a, circuit)
+      pointToCircuit.set(b, circuit)
+
+      circuitIds.set(circuit, new Set([pair]))
+    }
+
+    last = pair
+    i += 1
+  }
+
+  return last[0].x * last[1].x
+}
+
 console.time('p1')
-console.log(getCircuitMul(...getSortedPairs(parse(input)), 1000))
+console.log(part1(...getSortedPairs(parse(input)), 1000))
 console.timeEnd('p1')
+
+console.time('p2')
+console.log(part2(...getSortedPairs(parse(input))))
+console.timeEnd('p2')

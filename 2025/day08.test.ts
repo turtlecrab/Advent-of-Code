@@ -1,4 +1,4 @@
-import { getCircuitMul, getSortedPairs, parse } from './day08'
+import { part1, getSortedPairs, parse, part2 } from './day08'
 
 const testInput = `162,817,812
 57,618,57
@@ -21,8 +21,14 @@ const testInput = `162,817,812
 984,92,344
 425,690,689`
 
-describe('Day08', () => {
+describe('part 1', () => {
   it('works for test input', () => {
-    expect(getCircuitMul(...getSortedPairs(parse(testInput)), 10)).toBe(40)
+    expect(part1(...getSortedPairs(parse(testInput)), 10)).toBe(40)
+  })
+})
+
+describe('part 2', () => {
+  it('works for test input', () => {
+    expect(part2(...getSortedPairs(parse(testInput)))).toBe(25272)
   })
 })
