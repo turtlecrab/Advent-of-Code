@@ -19,23 +19,23 @@ export function findMax(points: [number, number][]) {
       for (let j = i + 1; j < points.length - 1; j++) {
         const a = points[i]
         const b = points[j]
-        const square = (Math.abs(b[0] - a[0]) + 1) * (Math.abs(b[1] - a[1]) + 1)
+        const area = (Math.abs(b[0] - a[0]) + 1) * (Math.abs(b[1] - a[1]) + 1)
 
-        if (square > acc.square) {
-          acc.square = square
+        if (area > acc.area) {
+          acc.area = area
           acc.sides = [a, b]
         }
       }
       return acc
     },
     {
-      square: -1,
+      area: -1,
       sides: [
         [-1, -1],
         [-1, -1],
       ],
     }
-  ).square
+  ).area
 }
 
 console.time('p1')
