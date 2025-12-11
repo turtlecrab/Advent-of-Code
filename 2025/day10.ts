@@ -1,3 +1,4 @@
+import { Queue } from 'datastructures-js'
 import * as fs from 'fs'
 
 const input = fs
@@ -41,18 +42,18 @@ export function findShortest(target: number, buttons: number[]) {
     buttonsPressed: number[]
   }
 
-  const queue: State[] = [
+  const queue = new Queue([
     {
       state: 0,
       distance: 0,
       buttonsAvailable: buttons,
       buttonsPressed: [],
     },
-  ]
+  ])
 
   const visited = new Set<number>()
 
-  while (queue.length) {
+  while (queue.size()) {
     const cur = queue.pop()
 
     if (visited.has(cur.state)) continue
@@ -70,7 +71,7 @@ export function findShortest(target: number, buttons: number[]) {
         buttonsPressed: [...cur.buttonsPressed, btn],
         buttonsAvailable: cur.buttonsAvailable.filter(b => b !== btn),
       }
-      queue.unshift(nextState)
+      queue.enqueue(nextState)
     }
   }
 }
